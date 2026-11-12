@@ -72,7 +72,7 @@ function repoPath(path){return "/repos/"+OWNER+"/"+REPO+"/contents/"+path.split(
 async function readFile(path){var d=await request(repoPath(path)+"?ref="+BRANCH);return {sha:d.sha,text:base64ToText(d.content)};}
 async function putFile(path,contentB64,message,sha){var body={message:message,content:contentB64,branch:BRANCH};if(sha)body.sha=sha;return request(repoPath(path),{method:"PUT",body:JSON.stringify(body)});}
 async function deleteFile(path,sha,message){return request(repoPath(path),{method:"DELETE",body:JSON.stringify({message:message,sha:sha,branch:BRANCH})});}
-function parseCatalog(text){var a=text.indexOf("["),b=text.lastIndexOf("]");if(a<0||b<a)throw new Error("Could not read games.js catalog.");return JSON.parse(text.slice(a,b+1));}
+function parseCatalog(text){var a=text.indexOf("["),b=text.lastIndexOf("]");if(a<0||b<a)throw new Error("Could not read games.js catalog.");var source=text.slice(a,b+1);source=source.replace(/([{,]\s*)([A-Za-z_$][\w$]*)(\s*:)/g,'$1"$2"$3');return JSON.parse(source);}
 function catalogSource(items){return "/* Updated from the Arcade Admin page. */\nwindow.ARCADE_GAMES = "+JSON.stringify(items,null,2)+";\n";}
 async function saveCatalog(items,message){var current=await readFile("games.js");await putFile("games.js",bytesToBase64(new TextEncoder().encode(catalogSource(items))),message,current.sha);catalog=items;renderGames();}
 function renderGames(){
