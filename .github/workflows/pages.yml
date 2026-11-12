@@ -32,9 +32,10 @@ jobs:
       - name: Prepare website
         run: |
           set -euo pipefail
-          mkdir -p dist/games
+          mkdir -p dist/games dist/admin
           cp index.html games.js .nojekyll dist/
           cp -R games/. dist/games/
+          cp -R admin/. dist/admin/
 
       - name: Upload website artifact
         uses: actions/upload-pages-artifact@v3

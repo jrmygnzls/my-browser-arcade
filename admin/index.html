@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Arcade Admin · My Browser Arcade</title>
+<style>
+:root{color-scheme:dark;--bg:#090e18;--panel:#111b2b;--panel2:#172438;--line:#293a52;--text:#edf4ff;--muted:#9aaec7;--accent:#69d6b5;--accent2:#7aa7ff;--danger:#ff777f;--gold:#f2c879}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 12% 0%,#1b3850 0,transparent 32%),radial-gradient(circle at 100% 18%,#2d2450 0,transparent 29%),var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+a{color:#a9c8ff}button,input,textarea,select{font:inherit}button{border:0;border-radius:11px;padding:11px 15px;font-weight:700;cursor:pointer;background:var(--accent);color:#092018}button.secondary{background:#263850;color:var(--text)}button.danger{background:#542a39;color:#ffdce0}button:disabled{opacity:.45;cursor:not-allowed}
+header{max-width:1120px;margin:auto;padding:24px 22px 10px;display:flex;align-items:center;justify-content:space-between;gap:15px}.brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#6be0bf,#7aa7ff);color:#0a1720;font-size:23px;font-weight:900}.brand h1{font-size:18px;line-height:1.1;margin:0}.brand small{color:var(--muted)}main{max-width:1120px;margin:0 auto;padding:16px 22px 60px}.panel{background:linear-gradient(160deg,rgba(22,36,56,.96),rgba(13,22,36,.96));border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 18px 50px #0005}.login{max-width:620px;margin:34px auto}.eyebrow{color:var(--accent);font-size:11px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}.hero h2{font-size:clamp(26px,4vw,38px);line-height:1.08;margin:8px 0}.muted{color:var(--muted)}.notice{border:1px solid #665536;background:#302819;color:#ffe6b4;border-radius:12px;padding:12px 14px;margin:16px 0;font-size:13px}.notice strong{color:#fff}.field{display:grid;gap:7px;margin:13px 0}.field label{font-size:13px;color:#c4d3e5;font-weight:700}.field input,.field textarea,.field select{width:100%;background:#091321;border:1px solid #344a65;border-radius:10px;padding:12px;color:var(--text);outline:none}.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent2);box-shadow:0 0 0 3px #7aa7ff22}.field textarea{min-height:82px;resize:vertical}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row>*{flex:1}.small{font-size:12px}.status{margin-top:12px;font-size:13px;color:var(--muted);min-height:22px}.status.good{color:var(--accent)}.status.bad{color:var(--danger)}.topline{display:flex;align-items:center;justify-content:space-between;gap:15px;margin:10px 0 18px}.account{background:#102a2a;border:1px solid #286354;border-radius:999px;padding:7px 12px;color:#a9f0d9;font-size:12px;font-weight:800}.layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);gap:18px}.section-title{font-size:19px;margin:0 0 4px}.game-list{display:grid;gap:10px;margin-top:18px}.game{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid var(--line);background:#0d1726;border-radius:13px}.game-icon{width:42px;height:42px;border-radius:12px;background:#213852;display:grid;place-items:center;font-size:22px;flex-shrink:0}.game-info{flex:1;min-width:0}.game-info strong{display:block}.game-info small{display:block;color:var(--muted);overflow-wrap:anywhere}.game-actions{display:flex;gap:6px;flex-wrap:wrap}.game-actions button{padding:8px 10px;font-size:12px}.tag{font-size:11px;color:#9bd9cc;background:#16332f;border:1px solid #2c5b50;padding:3px 8px;border-radius:999px}.hint{font-size:12px;color:var(--muted);margin-top:6px}.hidden{display:none!important}.footer{margin-top:18px;text-align:center;color:#71849e;font-size:12px}.pill{border:1px solid var(--line);padding:5px 9px;border-radius:999px;color:var(--muted);font-size:12px}
+@media(max-width:820px){.layout{grid-template-columns:1fr}.game{align-items:flex-start;flex-wrap:wrap}.game-actions{width:100%;padding-left:54px}.topline{align-items:flex-start;flex-direction:column}}@media(max-width:520px){header{padding:18px 15px}main{padding:14px 15px 40px}.panel{padding:17px}.row{flex-direction:column}.row>*{width:100%}}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="logo">✦</div><div><h1>MY BROWSER ARCADE</h1><small>Private management console</small></div></div><a href="../">← Back to arcade</a></header>
+<main>
+<section id="loginPanel" class="panel login">
+<div class="hero"><div class="eyebrow">Owner verification</div><h2>Arcade Admin</h2><p class="muted">Sign in with a GitHub fine-grained personal access token. The panel verifies the account and repository owner permissions before enabling management.</p></div>
+<div class="notice"><strong>Security:</strong> This is a static GitHub Pages site, so this page's source and URL are public. The management actions are restricted by GitHub itself: only the <b>jrmygnzls</b> account with admin access to this repository can unlock them. Your token is kept in memory only and is never saved or uploaded.</div>
+<div class="field"><label for="token">Fine-grained GitHub token</label><input id="token" type="password" autocomplete="off" placeholder="github_pat_••••••••••••" spellcheck="false"></div>
+<p class="hint">Create a token for <b>Only select repositories → my-browser-arcade</b>. Grant <b>Contents: Read and write</b>. Metadata read-only is included automatically. Do not paste the token into chat or commit it to GitHub.</p>
+<div class="row" style="margin-top:16px"><button id="loginBtn">Verify and unlock admin</button><a class="pill" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Create token ↗</a></div>
+<div id="loginStatus" class="status" aria-live="polite"></div>
+</section>
+
+<section id="adminPanel" class="hidden">
+<div class="topline"><div><div class="eyebrow">Owner tools</div><h2 style="margin:4px 0">Manage your games</h2><div class="muted small">Changes commit directly to the main branch and automatically trigger the website deployment.</div></div><div class="row" style="flex:0 0 auto"><span class="account">✓ jrmygnzls verified</span><button id="logoutBtn" class="secondary">Lock admin</button></div></div>
+<div class="layout">
+<section class="panel">
+<h3 class="section-title">Your game catalog</h3><p class="muted small">Edit a game's card, replace its HTML, or remove it from the arcade.</p>
+<div id="gameList" class="game-list"></div>
+<div id="listStatus" class="status" aria-live="polite"></div>
+</section>
+<section class="panel">
+<h3 class="section-title" id="formTitle">Add a game</h3><p class="muted small">Each game lives in its own folder. Upload one standalone HTML file.</p>
+<form id="gameForm">
+<div class="field"><label for="gameId">Game folder ID</label><input id="gameId" required pattern="[a-z0-9-]+" placeholder="my-new-game"><div class="hint">Lowercase letters, numbers, and hyphens only.</div></div>
+<div class="field"><label for="gameTitle">Game title</label><input id="gameTitle" required placeholder="My New Game"></div>
+<div class="row"><div class="field"><label for="genre">Genre</label><input id="genre" required placeholder="Arcade"></div><div class="field"><label for="icon">Card icon</label><input id="icon" maxlength="8" value="★" placeholder="★"></div></div>
+<div class="field"><label for="description">Description</label><textarea id="description" required placeholder="Describe your game in one sentence."></textarea></div>
+<div class="row"><div class="field"><label for="theme">Card theme</label><select id="theme"><option value="sudoku">Sudoku</option><option value="chess">Chess</option><option value="nightfall" selected>Nightfall</option><option value="mazebound">Mazebound</option></select></div><div class="field"><label for="tags">Tags</label><input id="tags" placeholder="Offline, New"></div></div>
+<div class="field"><label for="gameFile">Standalone HTML file <span class="muted">(required for new games, optional for card edits)</span></label><input id="gameFile" type="file" accept=".html,text/html"><div class="hint">For replacement, choose the new HTML file. Existing games can be updated without changing their folder ID.</div></div>
+<div class="row"><button id="saveBtn" type="submit">Add game to arcade</button><button id="cancelEdit" type="button" class="secondary hidden">Cancel edit</button></div>
+<div id="formStatus" class="status" aria-live="polite"></div>
+</form>
+</section>
+</div>
+</section>
+<p class="footer">My Browser Arcade · Admin access is verified by GitHub repository permissions. Token is memory-only.</p>
+</main>
+<script>
+(function(){
+"use strict";
+var OWNER="jrmygnzls",REPO="my-browser-arcade",BRANCH="main",API="https://api.github.com";
+var token="",catalog=[],editingId=null,busy=false;
+var $=function(id){return document.getElementById(id);};
+function setStatus(id,msg,type){var e=$(id);e.textContent=msg||"";e.className="status"+(type?" "+type:"");}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function bytesToBase64(bytes){var out="",step=0x8000;for(var i=0;i<bytes.length;i+=step){out+=String.fromCharCode.apply(null,bytes.subarray(i,Math.min(i+step,bytes.length)));}return btoa(out);}
+function base64ToText(s){var raw=atob(String(s||"").replace(/\s/g,"")),bytes=new Uint8Array(raw.length);for(var i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);return new TextDecoder().decode(bytes);}
+async function request(url,options){
+  options=options||{};var headers=Object.assign({"Accept":"application/vnd.github+json","Authorization":"Bearer "+token,"X-GitHub-Api-Version":"2022-11-28"},options.headers||{});
+  if(options.body)headers["Content-Type"]="application/json";
+  var response=await fetch(API+url,Object.assign({},options,{headers:headers}));
+  var data=null;var txt=await response.text();if(txt){try{data=JSON.parse(txt);}catch(_){data={message:txt};}}
+  if(!response.ok){var message=data&&data.message?data.message:"GitHub request failed ("+response.status+")";if(response.status===401)message="Token is invalid or expired. Create a new fine-grained token.";if(response.status===403)message="GitHub denied this action. Check that the token has Contents read/write permission for this repository.";if(response.status===404)message="File or repository was not found.";throw new Error(message);}
+  return data;
+}
+function repoPath(path){return "/repos/"+OWNER+"/"+REPO+"/contents/"+path.split("/").map(encodeURIComponent).join("/");}
+async function readFile(path){var d=await request(repoPath(path)+"?ref="+BRANCH);return {sha:d.sha,text:base64ToText(d.content)};}
+async function putFile(path,contentB64,message,sha){var body={message:message,content:contentB64,branch:BRANCH};if(sha)body.sha=sha;return request(repoPath(path),{method:"PUT",body:JSON.stringify(body)});}
+async function deleteFile(path,sha,message){return request(repoPath(path),{method:"DELETE",body:JSON.stringify({message:message,sha:sha,branch:BRANCH})});}
+function parseCatalog(text){var a=text.indexOf("["),b=text.lastIndexOf("]");if(a<0||b<a)throw new Error("Could not read games.js catalog.");return JSON.parse(text.slice(a,b+1));}
+function catalogSource(items){return "/* Updated from the Arcade Admin page. */\nwindow.ARCADE_GAMES = "+JSON.stringify(items,null,2)+";\n";}
+async function saveCatalog(items,message){var current=await readFile("games.js");await putFile("games.js",bytesToBase64(new TextEncoder().encode(catalogSource(items))),message,current.sha);catalog=items;renderGames();}
+function renderGames(){
+  var root=$("gameList");root.innerHTML="";
+  if(!catalog.length){root.innerHTML='<p class="muted">No games in the catalog yet.</p>';return;}
+  catalog.forEach(function(g){
+    var row=document.createElement("article");row.className="game";
+    row.innerHTML='<div class="game-icon">'+esc(g.icon||"★")+'</div><div class="game-info"><strong>'+esc(g.title)+'</strong><small>'+esc(g.genre||"Game")+' · '+esc(g.id)+'</small><small>'+esc(g.description||"")+'</small></div><div class="game-actions"><button class="secondary" type="button" data-edit="'+esc(g.id)+'">Edit</button><button class="danger" type="button" data-remove="'+esc(g.id)+'">Remove</button></div>';
+    root.appendChild(row);
+  });
+}
+function resetForm(){editingId=null;$("gameForm").reset();$("icon").value="★";$("theme").value="nightfall";$("gameId").disabled=false;$("formTitle").textContent="Add a game";$("saveBtn").textContent="Add game to arcade";$("cancelEdit").classList.add("hidden");}
+function beginEdit(id){var g=catalog.find(function(x){return x.id===id;});if(!g)return;editingId=id;$("gameId").value=g.id;$("gameId").disabled=true;$("gameTitle").value=g.title||"";$("genre").value=g.genre||"";$("icon").value=g.icon||"★";$("description").value=g.description||"";$("theme").value=g.theme||"nightfall";$("tags").value=(g.tags||[]).join(", ");$("gameFile").value="";$("formTitle").textContent="Edit game";$("saveBtn").textContent="Save game changes";$("cancelEdit").classList.remove("hidden");$("formStatus").textContent="Choose an HTML file only if you also want to replace the game's current build.";}
+async function verify(){
+  token=$("token").value.trim();if(!token){setStatus("loginStatus","Enter your fine-grained GitHub token.","bad");return;}
+  $("loginBtn").disabled=true;setStatus("loginStatus","Checking GitHub account and repository permissions…");
+  try{
+    var user=await request("/user");
+    if(user.login!==OWNER)throw new Error("This admin page is reserved for the GitHub account "+OWNER+". The signed-in account is "+user.login+".");
+    var repo=await request("/repos/"+OWNER+"/"+REPO);
+    if(!repo.permissions||repo.permissions.admin!==true)throw new Error("This account does not have administrator permission on "+OWNER+"/"+REPO+".");
+    var file=await readFile("games.js");catalog=parseCatalog(file.text);renderGames();
+    $("loginPanel").classList.add("hidden");$("adminPanel").classList.remove("hidden");$("token").value="";setStatus("loginStatus","");
+  }catch(e){token="";setStatus("loginStatus",e.message,"bad");}
+  finally{$("loginBtn").disabled=false;}
+}
+function lock(){token="";catalog=[];$("adminPanel").classList.add("hidden");$("loginPanel").classList.remove("hidden");$("token").value="";resetForm();setStatus("loginStatus","Admin session locked.");}
+async function saveGame(event){
+  event.preventDefault();if(busy)return;
+  var id=$("gameId").value.trim(),title=$("gameTitle").value.trim(),file=$("gameFile").files[0],existing=catalog.find(function(g){return g.id===id;});
+  if(!/^[a-z0-9-]+$/.test(id)){setStatus("formStatus","Use only lowercase letters, numbers, and hyphens for the game ID.","bad");return;}
+  if(!existing&&!file){setStatus("formStatus","Choose a standalone HTML file for a new game.","bad");return;}
+  if(existing&&!editingId&&!file){setStatus("formStatus","This game already exists. Edit it or choose a different ID.","bad");return;}
+  if(file&&!/\.html?$/i.test(file.name)){setStatus("formStatus","Please choose an .html file.","bad");return;}
+  busy=true;$("saveBtn").disabled=true;setStatus("formStatus","Saving game files to GitHub…");
+  try{
+    var href="./games/"+id+"/index.html";
+    if(file){
+      var path="games/"+id+"/index.html",prior=null;
+      try{prior=await readFile(path);}catch(e){if(!String(e.message).includes("not found")&&!String(e.message).includes("not be found"))throw e;}
+      var bytes=new Uint8Array(await file.arrayBuffer());
+      await putFile(path,bytesToBase64(bytes),"Add or update "+title,prior&&prior.sha);
+    }
+    var item={id:id,title:title,genre:$("genre").value.trim(),description:$("description").value.trim(),href:href,icon:$("icon").value.trim()||"★",theme:$("theme").value,tags:$("tags").value.split(",").map(function(x){return x.trim();}).filter(Boolean)};
+    var next=catalog.filter(function(g){return g.id!==id;});next.push(item);
+    await saveCatalog(next,(editingId?"Update":"Add")+" "+title+" in game catalog");
+    resetForm();setStatus("formStatus","Saved successfully. GitHub Actions will publish the change automatically.","good");
+  }catch(e){setStatus("formStatus","Could not save: "+e.message,"bad");}
+  finally{busy=false;$("saveBtn").disabled=false;}
+}
+async function removeGame(id){
+  if(busy)return;var g=catalog.find(function(x){return x.id===id;});if(!g)return;
+  if(!window.confirm("Remove "+g.title+" from the arcade? This deletes its game HTML file and its catalog card."))return;
+  busy=true;setStatus("listStatus","Removing "+g.title+"…");
+  try{
+    var next=catalog.filter(function(x){return x.id!==id;});
+    await saveCatalog(next,"Remove "+g.title+" from arcade catalog");
+    try{var f=await readFile("games/"+id+"/index.html");await deleteFile("games/"+id+"/index.html",f.sha,"Delete "+g.title+" game file");}catch(e){if(!String(e.message).includes("not found")&&!String(e.message).includes("not be found"))throw e;}
+    if(editingId===id)resetForm();setStatus("listStatus",g.title+" removed. The next deployment will update the live arcade.","good");
+  }catch(e){setStatus("listStatus","Removal incomplete: "+e.message,"bad");}
+  finally{busy=false;}
+}
+$("loginBtn").addEventListener("click",verify);
+$("token").addEventListener("keydown",function(e){if(e.key==="Enter")verify();});
+$("logoutBtn").addEventListener("click",lock);
+$("gameForm").addEventListener("submit",saveGame);
+$("cancelEdit").addEventListener("click",function(){resetForm();setStatus("formStatus","Edit cancelled.");});
+$("gameList").addEventListener("click",function(e){var edit=e.target.closest("[data-edit]"),remove=e.target.closest("[data-remove]");if(edit)beginEdit(edit.getAttribute("data-edit"));if(remove)removeGame(remove.getAttribute("data-remove"));});
+})();
+</script>
+</body>
+</html>

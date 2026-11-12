@@ -1,20 +1,22 @@
 # Add / update / remove games
 
-The homepage reads its game cards from `games.js`. Each game lives in its own folder under `games/`.
+## Easiest method: Arcade Admin
 
-## Add a game
+1. Open `https://jrmygnzls.github.io/my-browser-arcade/admin/`.
+2. Unlock with a GitHub fine-grained token scoped only to `jrmygnzls/my-browser-arcade`, with Contents read/write permission.
+3. Add, edit, replace, or remove games in the panel.
+4. Lock the admin panel when finished.
 
-1. Create `games/<game-id>/`.
-2. Put the standalone HTML game there as `index.html`.
-3. Add one object to `window.ARCADE_GAMES` in `games.js`, using `./games/<game-id>/index.html` as its `href`.
-4. Commit to `main`. GitHub Actions publishes it automatically.
+The token stays in page memory only. Never commit it or send it in chat.
 
-## Update a game
+## Manual method
 
-Replace `games/<game-id>/index.html` with the new version. Keep the catalog ID and link unchanged.
+- **Add:** create `games/<game-id>/index.html`, then add a matching game object in `games.js`.
+- **Update:** replace `games/<game-id>/index.html`.
+- **Remove:** delete the matching game object from `games.js` and delete `games/<game-id>/`.
 
-## Remove a game
+Commit to `main`; GitHub Actions republishes the website automatically.
 
-Remove its object from `games.js`, delete `games/<game-id>/`, and commit.
+## Security note
 
-No other game folders or catalog entries need to change.
+GitHub Pages is static hosting. The admin HTML and URL are public, but game-management actions require a token authenticated as the repository owner with admin permission. For the admin page itself to be server-private, use a backend or access-proxy service.
