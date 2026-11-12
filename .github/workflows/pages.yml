@@ -24,29 +24,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Prepare static website
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p dist
-          cp index.html games.js .nojekyll dist/
-          while IFS= read -r -d '' file; do
-            output="${file%.gz.b64}"
-            mkdir -p "dist/$(dirname "$output")"
-            base64 --decode "$file" | gzip --decompress --stdout > "dist/$output"
-            echo "Prepared $output"
-          done < <(find games -type f -name 'index.html.gz.b64' -print0)
-
-      - name: Configure Pages
+      - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
         with:
           enablement: true
 
-      - name: Upload Pages artifact
+      - name: Prepare website
+        run: |
+          set -euo pipefail
+          mkdir -p dist/games
+          cp index.html games.js .nojekyll dist/
+          cp -R games/. dist/games/
+
+      - name: Upload website artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy website
         id: deployment
         uses: actions/deploy-pages@v4

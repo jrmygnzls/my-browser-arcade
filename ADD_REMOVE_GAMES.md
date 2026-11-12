@@ -1,7 +1,20 @@
-# Add / remove games
+# Add / update / remove games
 
-- Add: package a standalone HTML file with `python tools/package_game.py <id> <file.html>`, then add its card to `games.js` and commit both.
-- Update: package the replacement HTML using the same ID, then commit the replacement `.gz.b64` file.
-- Remove: remove the card from `games.js`, delete `games/<id>/index.html.gz.b64`, and commit.
+The homepage reads its game cards from `games.js`. Each game lives in its own folder under `games/`.
 
-The GitHub Pages workflow automatically expands each `index.html.gz.b64` into a normal `index.html` during deployment.
+## Add a game
+
+1. Create `games/<game-id>/`.
+2. Put the standalone HTML game there as `index.html`.
+3. Add one object to `window.ARCADE_GAMES` in `games.js`, using `./games/<game-id>/index.html` as its `href`.
+4. Commit to `main`. GitHub Actions publishes it automatically.
+
+## Update a game
+
+Replace `games/<game-id>/index.html` with the new version. Keep the catalog ID and link unchanged.
+
+## Remove a game
+
+Remove its object from `games.js`, delete `games/<game-id>/`, and commit.
+
+No other game folders or catalog entries need to change.

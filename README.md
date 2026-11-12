@@ -2,41 +2,52 @@
 
 A collection of standalone browser games published with GitHub Pages.
 
-## Included games
+## Games
 
-- Endless Sudoku
-- Chess Arena (computer opponents and online multiplayer)
-- Nightfall: Endless Hunt
-- Mazebound: Ancients Defense
+- **Endless Sudoku** — endless randomized Sudoku puzzles.
+- **Chess Arena** — computer opponents and online multiplayer room codes.
+- **Nightfall: Endless Hunt** — endless survival roguelite.
+- **Mazebound: Ancients Defense** — maze-building tower defense.
 
-## Publish the site
+## Publish
 
-1. Download and extract [My Browser Arcade GitHub Pages ZIP](https://github.com/jrmygnzls/my-browser-arcade/blob/main/My_Browser_Arcade_Package_Fresh.zip).
-2. Open this repository on GitHub and choose **Add file → Upload files**.
-3. Open the extracted `My_Browser_Arcade` folder on your computer and upload its contents (not the outer folder and not only the ZIP).
-4. Commit the upload to the `main` branch.
-5. Open **Settings → Pages** and set the source to **GitHub Actions**.
-6. Open **Actions** and check that **Deploy My Browser Arcade** completes successfully.
+This repository deploys automatically with GitHub Actions whenever changes are committed to `main`.
 
-Your website address will be:
+1. Open **Settings → Pages** and choose **GitHub Actions** as the source if it is not already selected.
+2. Open the **Actions** tab and check the latest **Deploy My Browser Arcade** run.
+3. When it succeeds, visit: https://jrmygnzls.github.io/my-browser-arcade/
 
-https://jrmygnzls.github.io/my-browser-arcade/
+## Add a game
 
-The first deployment can take several minutes.
+1. Create a folder under `games/`, for example `games/my-game/`.
+2. Put the standalone game file in that folder and name it `index.html`.
+3. Add a matching entry to `games.js` inside `window.ARCADE_GAMES`:
 
-## Add, update, or remove games
+   ```js
+   {
+     id: "my-game",
+     title: "My New Game",
+     genre: "Arcade",
+     description: "A short description of the game.",
+     href: "./games/my-game/index.html",
+     icon: "★",
+     theme: "nightfall",
+     tags: ["Offline", "Arcade"]
+   }
+   ```
 
-The homepage reads its cards from `games.js`.
+4. Commit the changes to `main`. The site updates automatically.
 
-- **Add:** create a folder under `games/<game-id>/`, put the game's `index.html` there, then add a matching object to `games.js`.
-- **Update:** replace that game's `index.html` and commit the change.
-- **Remove:** remove its object from `games.js` and delete its folder.
+## Update a game
 
-The included `README.md` and `ADD_REMOVE_GAMES.md` contain the detailed instructions. The Pages workflow expands the compressed backup copies in `games/*/index.html.gz.b64` during deployment.
+Replace the relevant `games/<game-id>/index.html` file and commit the change. Keep its ID and `href` in `games.js` unchanged.
+
+## Remove a game
+
+Delete its entry from `games.js`, delete its `games/<game-id>/` folder, and commit the change.
 
 ## Notes
 
-- The games are standalone HTML files; no build framework is needed.
-- Sudoku, Nightfall, and Mazebound are designed to run offline after loading.
-- Chess single-player works offline. Online multiplayer requires internet access.
+- This is a static site; no build framework or backend is required.
+- Sudoku, Nightfall, and Mazebound work offline after loading. Chess single-player works offline; online multiplayer requires internet access.
 - This repository is public. Do not commit passwords, API keys, or private information.
