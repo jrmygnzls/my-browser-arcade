@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chess Arena · Online Multiplayer</title>
+<style>
+:root{--bg:#0b1220;--panel:#111c2e;--panel2:#17243a;--text:#edf3fb;--muted:#93a4ba;--accent:#6ed6b5;--accent2:#f3c969;--line:#293950;--light:#e8edf4;--dark:#66849a;--danger:#f17d83;--blue:#8dc7ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#172942 0,#0b1220 58%);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;min-height:100vh}
+button,select{font:inherit}button{cursor:pointer}.app{max-width:1180px;margin:auto;padding:22px 18px 40px}.top{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:20px}.brand{display:flex;align-items:center;gap:12px}.brand-icon{height:44px;width:44px;border-radius:14px;background:linear-gradient(145deg,#77e0c1,#3c9e91);display:grid;place-items:center;color:#08231f;font-size:29px;box-shadow:0 8px 25px #48bca533}.brand h1{font-size:22px;line-height:1.1;margin:0}.brand p{margin:4px 0 0;color:var(--muted);font-size:12px}.offline{font-size:12px;color:#89e5c7;border:1px solid #347a68;padding:6px 10px;border-radius:999px;background:#12352f80;white-space:nowrap}
+.layout{display:grid;grid-template-columns:minmax(300px, min(66vw,680px)) minmax(260px,1fr);gap:18px;align-items:start}.panel{background:linear-gradient(180deg,#142238,#101b2d);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 18px 50px #0003}.board-panel{padding:16px}.board-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.turn{font-weight:700;font-size:15px}.turn small{display:block;font-weight:400;color:var(--muted);font-size:12px;margin-top:2px}.pill{font-size:11px;border-radius:999px;padding:5px 9px;background:#20334c;color:#b8cce2;border:1px solid #334962;white-space:nowrap}
+.board-wrap{width:100%;max-width:650px;margin:auto;position:relative}.board{width:100%;aspect-ratio:1;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);overflow:hidden;border:5px solid #26374b;border-radius:9px;box-shadow:0 15px 35px #0005;user-select:none}.square{border:0;position:relative;display:grid;place-items:center;padding:0;min-width:0;min-height:0}.square.light{background:#e5e9e9}.square.dark{background:#7894a2}.square.last::before{content:"";position:absolute;inset:0;background:#f6d36566;pointer-events:none}.square.selected::before{content:"";position:absolute;inset:0;background:#54d6b477;pointer-events:none}.square.check::before{content:"";position:absolute;inset:0;background:#ed646a99;pointer-events:none}.piece{position:relative;z-index:1;font-family:"Segoe UI Symbol","Noto Sans Symbols 2","DejaVu Sans",serif;font-size:clamp(27px,6vw,64px);line-height:1;transform:translateY(-1px);pointer-events:none}.piece.white{color:#fffdf3;text-shadow:0 1px 1px #202c3a,0 2px 2px #202c3a,1px 0 #202c3a,-1px 0 #202c3a}.piece.black{color:#172331;text-shadow:0 1px 0 #e9eef0a8}.coord{position:absolute;z-index:2;font-size:clamp(8px,1.1vw,11px);font-weight:700;opacity:.85;pointer-events:none}.coord.rank{top:2px;left:4px}.coord.file{right:4px;bottom:1px}.light .coord{color:#536b7d}.dark .coord{color:#f5f7f3}.dot{position:absolute;width:22%;aspect-ratio:1;border-radius:50%;background:#173d3c70;z-index:2;pointer-events:none}.capture-ring{position:absolute;inset:5%;border:5px solid #173d3c6b;border-radius:50%;z-index:2;pointer-events:none}.board-legend{display:flex;justify-content:center;gap:15px;flex-wrap:wrap;color:var(--muted);font-size:11px;margin-top:11px}.legend-item{display:flex;align-items:center;gap:6px}.legend-swatch{width:10px;height:10px;border-radius:3px}.below-board{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;color:var(--muted);font-size:12px}.captured{min-height:22px;letter-spacing:2px;font-size:17px;color:#c4d2df}
+.side{display:flex;flex-direction:column;gap:14px}.section-title{font-size:13px;font-weight:750;letter-spacing:.04em;text-transform:uppercase;color:#b7c8db;margin:0 0 11px}.control-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:12px;color:var(--muted)}select{height:42px;width:100%;border-radius:10px;background:#0d1828;color:var(--text);border:1px solid #34475f;padding:0 11px;outline:none}select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.difficulty-info{font-size:12px;color:var(--muted);margin:10px 0 0;min-height:34px}.buttons{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}.btn{border:1px solid #3b5068;background:#1b2b42;color:#e8f0f8;border-radius:10px;padding:10px 12px;font-weight:650;transition:.15s}.btn:hover{filter:brightness(1.15);transform:translateY(-1px)}.btn.primary{background:linear-gradient(135deg,#71dfbd,#4db89c);color:#082820;border-color:#69d5b5}.btn.subtle{background:#101c2d}.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}.full{grid-column:1/-1}.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}.stat{padding:11px;border:1px solid #293d54;border-radius:11px;background:#0e1a2a}.stat label{display:block;color:var(--muted);font-size:11px}.stat strong{display:block;font-size:19px;margin-top:3px;font-variant-numeric:tabular-nums}.moves{max-height:280px;overflow:auto;scrollbar-color:#344a63 transparent}.move-row{display:grid;grid-template-columns:34px 1fr 1fr;gap:7px;padding:7px 8px;border-bottom:1px solid #26384d;font-size:13px}.move-num{color:#8297ae}.move-san{font-weight:650;color:#d8e5f2}.move-san.latest{color:var(--accent)}.empty{color:var(--muted);font-size:13px;padding:10px 2px}.help{color:var(--muted);font-size:12px;line-height:1.6}.help b{color:#e1ebf5}.status-msg{border-radius:11px;padding:10px 12px;font-size:13px;background:#142b36;border:1px solid #2d635b;color:#a7e8d1;min-height:42px;display:flex;align-items:center}.status-msg.warn{background:#332b1b;border-color:#665326;color:#f4d88e}.status-msg.end{background:#30202a;border-color:#74414a;color:#ffc0c3}.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#f4f7fb;color:#172433;padding:10px 16px;border-radius:10px;box-shadow:0 8px 30px #0006;z-index:20;font-size:13px;font-weight:700;display:none}.toast.show{display:block}.modal-backdrop{position:fixed;inset:0;background:#020711c9;display:none;place-items:center;z-index:30;padding:18px}.modal-backdrop.show{display:grid}.modal{max-width:330px;width:100%;padding:20px;background:#142238;border:1px solid #39506c;border-radius:16px;box-shadow:0 22px 70px #0008}.modal h3{margin:0 0 7px}.modal p{color:var(--muted);font-size:13px;margin:0 0 14px}.promotion{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.promotion button{font-size:35px;background:#20334b;border:1px solid #45617e;border-radius:10px;color:white;padding:8px}.footer{text-align:center;margin-top:18px;color:#7589a1;font-size:11px}
+
+.multi-intro{font-size:12px;color:var(--muted);line-height:1.55;margin:0 0 12px}.multi-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.multi-flow{margin-top:12px;padding-top:12px;border-top:1px solid #293d54}.multi-flow[hidden],.hidden{display:none!important}.multi-step{font-size:12px;color:#c6d5e5;margin:0 0 8px}.signal-code{width:100%;min-height:85px;resize:vertical;border-radius:9px;border:1px solid #344b65;background:#0b1625;color:#dce9f5;padding:10px;font:11px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace;word-break:break-all;margin-top:8px}.multi-actions-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}.multi-actions-row .btn{flex:1;min-width:110px}.connection-state{display:flex;align-items:center;gap:8px;padding:9px 10px;margin-top:10px;border:1px solid #344a62;border-radius:10px;background:#0d1a2a;color:#b8c9db;font-size:12px}.connection-dot{width:8px;height:8px;border-radius:50%;background:#8294a8;flex:none}.connection-state.connected{border-color:#347a68;background:#12352f55;color:#a7e8d1}.connection-state.connected .connection-dot{background:#65ddb5;box-shadow:0 0 10px #65ddb5}.connection-state.waiting .connection-dot{background:#f3c969}.connection-state.error{border-color:#74414a;color:#ffc0c3}.connection-state.error .connection-dot{background:#f17d83}.small-note{font-size:11px;color:#8297ae;line-height:1.5;margin:8px 0 0}.mini-label{display:block;font-size:11px;color:#9eb0c4;margin-top:10px}.room-code-display{width:100%;text-align:center;font:800 clamp(32px,8vw,42px)/1.25 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.22em;color:#8fe7c8;background:#091522;border:1px solid #397966;border-radius:12px;padding:13px 10px;margin-top:9px}.room-code-input{width:100%;text-align:center;font:800 28px/1.3 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.22em;text-transform:uppercase;color:#edf7ff;background:#091522;border:1px solid #344b65;border-radius:12px;padding:13px 10px;margin:9px 0 2px}.room-code-input::placeholder{color:#60758c;letter-spacing:.12em;font-size:18px}
+
+@media(max-width:850px){.layout{grid-template-columns:1fr;max-width:680px;margin:auto}.app{padding:15px 12px 28px}.side{display:grid;grid-template-columns:1fr 1fr}.side .panel:first-child,.side .panel:last-child{grid-column:1/-1}.board-panel{padding:12px}.brand h1{font-size:19px}}
+@media(max-width:430px){.side{display:flex}.control-grid{grid-template-columns:1fr 1fr}.app{padding:12px 8px 24px}.board{border-width:3px}.piece{font-size:clamp(24px,10vw,45px)}.panel{padding:13px}.top{margin-bottom:14px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><div class="brand-icon">♞</div><div><h1>Chess Arena</h1><p>Play against the computer or challenge a friend online</p></div></div>
+    <div class="offline" id="modeBadge">● BOT MODE · OFFLINE</div>
+  </header>
+  <main class="layout">
+    <section class="panel board-panel">
+      <div class="board-head"><div class="turn" id="turnText">White to move<small id="subTurn">Your turn</small></div><span class="pill" id="levelPill">Level 3 · Club</span></div>
+      <div class="board-wrap"><div class="board" id="board" role="grid" aria-label="Chess board"></div></div>
+      <div class="board-legend">
+        <span class="legend-item"><i class="legend-swatch" style="background:#f6d365"></i>Last move</span>
+        <span class="legend-item"><i class="legend-swatch" style="background:#54d6b4"></i>Selected</span>
+        <span class="legend-item"><i class="legend-swatch" style="background:#173d3c"></i>Legal move</span>
+      </div>
+      <div class="below-board"><div><div style="font-size:10px;color:#8296aa">CAPTURED BY YOU</div><div class="captured" id="capturedYou">—</div></div><div style="text-align:right"><div style="font-size:10px;color:#8296aa">CAPTURED BY OPPONENT</div><div class="captured" id="capturedBot">—</div></div></div>
+    </section>
+    <aside class="side">
+      <section class="panel" id="multiplayerPanel">
+        <h2 class="section-title">Play a friend · Different computer</h2>
+        <p class="multi-intro">Play a friend on another computer. The host gets a simple 6-digit room code; the other player only needs to enter that code. Host plays White and the guest plays Black.</p>
+        <div class="multi-actions" id="multiStartActions">
+          <button class="btn primary" id="hostRoomBtn">♔ Host a game</button>
+          <button class="btn" id="joinRoomBtn">♟ Join a game</button>
+        </div>
+        <div class="connection-state" id="connectionState"><span class="connection-dot"></span><span id="connectionText">Not connected · Computer mode is available offline.</span></div>
+        <div class="multi-flow" id="hostFlow" hidden>
+          <p class="multi-step"><b>1.</b> Generate a room number and send it to your opponent.</p>
+          <button class="btn primary full" id="createRoomBtn">Generate 6-digit room code</button>
+          <div id="roomCodeBox" hidden>
+            <input class="room-code-display" id="roomCodeOutput" readonly aria-label="Your six-digit room code" value="">
+            <div class="multi-actions-row"><button class="btn" id="copyRoomCodeBtn" disabled>Copy room code</button></div>
+            <p class="small-note">Waiting for your opponent to enter this code… Keep this window open.</p>
+          </div>
+          <div class="multi-actions-row"><button class="btn" id="cancelHostBtn">Cancel</button></div>
+        </div>
+        <div class="multi-flow" id="joinFlow" hidden>
+          <label class="mini-label" for="roomCodeInput"><b>Enter the host's 6-digit room code.</b></label>
+          <input class="room-code-input" id="roomCodeInput" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="123456" aria-label="Six-digit room code">
+          <div class="multi-actions-row"><button class="btn primary" id="connectRoomBtn">Connect to room</button><button class="btn" id="cancelJoinBtn">Cancel</button></div>
+        </div>
+        <button class="btn full hidden" id="disconnectBtn" style="margin-top:10px">Disconnect multiplayer</button>
+        <p class="small-note">Room-code setup uses the free PeerJS signaling service over the internet. After connection, moves are sent directly between browsers. Share your 6-digit code privately; anyone who has it may try to join. Computer mode still works offline.</p>
+      </section>
+      <section class="panel" id="computerPanel">
+        <h2 class="section-title">Computer settings</h2>
+        <div class="control-grid">
+          <div class="field"><label for="sideSelect">Play as</label><select id="sideSelect"><option value="1">White</option><option value="-1">Black</option><option value="0">Random</option></select></div>
+          <div class="field"><label for="levelSelect">Bot level</label><select id="levelSelect"><option value="1">1 · Beginner</option><option value="2">2 · Casual</option><option value="3" selected>3 · Club</option><option value="4">4 · Advanced</option><option value="5">5 · Expert</option><option value="6">6 · Master</option></select></div>
+        </div>
+        <p class="difficulty-info" id="difficultyInfo">Plans several moves ahead and usually spots hanging pieces and basic tactics.</p>
+        <div class="buttons"><button class="btn primary full" id="newGame">＋ New game</button><button class="btn" id="undoBtn" disabled>↶ Undo turn</button><button class="btn" id="flipBtn">⇅ Flip board</button></div>
+      </section>
+      <section class="panel">
+        <h2 class="section-title">Game status</h2>
+        <div class="status-msg" id="statusBox">Choose a square, then choose a highlighted destination.</div>
+        <div class="stats" style="margin-top:12px"><div class="stat"><label>Moves played</label><strong id="moveCount">0</strong></div><div class="stat"><label>Elapsed time</label><strong id="timer">00:00</strong></div></div>
+      </section>
+      <section class="panel">
+        <h2 class="section-title">Move history</h2>
+        <div class="moves" id="movesList"><div class="empty">Your moves will appear here.</div></div>
+      </section>
+      <section class="panel">
+        <h2 class="section-title">How to play</h2>
+        <div class="help" id="howToPlay"><b>1.</b> Select one of your pieces.<br><b>2.</b> Choose a highlighted square to move.<br><b>3.</b> The computer responds automatically.<br><b>4.</b> Change the bot level any time by starting a new game.<br><br>Special moves including castling, en passant and pawn promotion are supported. Use <b>Undo turn</b> to take back your move and the computer's reply.</div>
+      </section>
+    </aside>
+  </main>
+  <div class="footer">Chess Arena · Bot matches work offline · Online multiplayer uses a direct browser connection</div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="modal-backdrop" id="promotionModal"><div class="modal"><h3>Choose your promotion</h3><p>Your pawn reached the opposite side. Select a piece.</p><div class="promotion" id="promotionChoices"></div></div></div>
+<script>
+'use strict';
+const EMPTY='.';
+const glyph={K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟︎'};
+const dirs={n:[-33,-31,-18,-14,14,18,31,33],b:[-17,-15,15,17],r:[-16,-1,1,16],k:[-17,-16,-15,-1,1,15,16,17]};
+const on=i=>i>=0&&i<128&&!(i&0x88);
+const sideOf=p=>!p||p==='.'?0:(p===p.toUpperCase()?1:-1);
+const squareName=i=>'abcdefgh'[i&7]+(8-(i>>4));
+const indexOf=s=>(8-Number(s[1]))*16+'abcdefgh'.indexOf(s[0]);
+const other=s=>-s;
+const MATERIAL={p:100,n:320,b:335,r:500,q:930,k:20000};
+const startState=()=>{const b=Array(128).fill('.');const back=['r','n','b','q','k','b','n','r'];for(let f=0;f<8;f++){b[f]=back[f];b[16+f]='p';b[96+f]='P';b[112+f]=back[f].toUpperCase();}return {b,turn:1,rights:15,ep:-1,half:0,full:1};};
+function clone(s){return {...s,b:s.b.slice()};}
+function attacked(s,target,by){
+ // Work outward from the target square. This reverse attack lookup is much
+ // faster than scanning every piece and tracing each piece's movement rays.
+ const pawn=by===1?'P':'p';
+ for(const df of [-1,1]){const from=target+16*by+df;if(on(from)&&s.b[from]===pawn)return true;}
+ for(const d of dirs.n){const from=target+d;if(on(from)&&sideOf(s.b[from])===by&&s.b[from].toLowerCase()==='n')return true;}
+ for(const d of dirs.k){const from=target+d;if(on(from)&&sideOf(s.b[from])===by&&s.b[from].toLowerCase()==='k')return true;}
+ for(const [rays,types] of [[dirs.b,['b','q']],[dirs.r,['r','q']]]){
+  for(const d of rays){
+   for(let from=target+d;on(from);from+=d){
+    const piece=s.b[from];
+    if(piece==='.')continue;
+    if(sideOf(piece)===by&&types.includes(piece.toLowerCase()))return true;
+    break;
+   }
+  }
+ }
+ return false;
+}
+function inCheck(s,color=s.turn){const k=s.b.indexOf(color===1?'K':'k');return k<0||attacked(s,k,-color);}
+function applyMove(s,m){
+ const [f,t,promo,flag]=m,b=s.b.slice(),piece=b[f],captured=b[t];let rights=s.rights;
+ b[f]='.';b[t]=promo?(s.turn===1?promo.toUpperCase():promo):piece;
+ if(flag==='ep')b[t+16*s.turn]='.';
+ if(flag==='castle'){const rf=t>f?f+3:f-4,rt=t>f?f+1:f-1;b[rt]=b[rf];b[rf]='.';}
+ if(piece==='K')rights&=~3;if(piece==='k')rights&=~12;
+ const rookBit={119:1,112:2,7:4,0:8};
+ if(piece.toLowerCase()==='r')rights&=~(rookBit[f]||0);
+ if(captured.toLowerCase()==='r')rights&=~(rookBit[t]||0);
+ return {b,turn:-s.turn,rights,ep:piece.toLowerCase()==='p'&&Math.abs(t-f)===32?(t+f)/2:-1,half:piece.toLowerCase()==='p'||captured!=='.'||flag==='ep'?0:s.half+1,full:s.full+(s.turn===-1?1:0)};
+}
+function pseudoMoves(s){
+ const out=[];
+ for(let f=0;f<128;f++){
+  if(!on(f)||sideOf(s.b[f])!==s.turn)continue;
+  const p=s.b[f].toLowerCase();
+  const add=(t,flag='')=>{if(s.b[t].toLowerCase()==='k')return;if(p==='p'&&(t>>4===0||t>>4===7)){for(const q of ['q','r','b','n'])out.push([f,t,q,flag]);}else out.push([f,t,'',flag]);};
+  if(p==='p'){
+   const t=f-16*s.turn;
+   if(on(t)&&s.b[t]==='.'){add(t);const u=t-16*s.turn;if((f>>4)===(s.turn===1?6:1)&&s.b[u]==='.')add(u);}
+   for(const d of [-1,1]){const u=t+d;if(!on(u))continue;if(sideOf(s.b[u])===-s.turn)add(u);else if(u===s.ep&&s.b[u]==='.'&&s.b[u+16*s.turn]===(s.turn===1?'p':'P'))add(u,'ep');}
+  }else{
+   for(const d of (dirs[p]||dirs.k))for(let t=f+d;on(t);t+=d){if(sideOf(s.b[t])===s.turn)break;add(t);if(s.b[t]!=='.'||p==='n'||p==='k')break;}
+   const home=s.turn===1?116:4,rook=s.turn===1?'R':'r',bits=s.turn===1?[1,2]:[4,8];
+   if(p==='k'&&f===home&&!inCheck(s)){
+    if((s.rights&bits[0])&&s.b[f+3]===rook&&s.b[f+1]==='.'&&s.b[f+2]==='.'&&!attacked(s,f+1,-s.turn)&&!attacked(s,f+2,-s.turn))add(f+2,'castle');
+    if((s.rights&bits[1])&&s.b[f-4]===rook&&s.b[f-1]==='.'&&s.b[f-2]==='.'&&s.b[f-3]==='.'&&!attacked(s,f-1,-s.turn)&&!attacked(s,f-2,-s.turn))add(f-2,'castle');
+   }
+  }
+ }
+ return out;
+}
+function legalMoves(s){return pseudoMoves(s).filter(m=>!inCheck(applyMove(s,m),s.turn));}
+function moveKey(m){return m[0]+','+m[1]+','+(m[2]||'');}
+function san(s,m){
+ const [f,t,promo,flag]=m,p=s.b[f].toUpperCase(),capture=s.b[t]!=='.'||flag==='ep';let text='';
+ if(flag==='castle')text=t>f?'O-O':'O-O-O';
+ else{
+  if(p!=='P'){text=p;const others=legalMoves(s).filter(x=>x[0]!==f&&x[1]===t&&s.b[x[0]]===s.b[f]);if(others.length){const sameFile=others.some(x=>(x[0]&7)===(f&7)),sameRank=others.some(x=>(x[0]>>4)===(f>>4));text+=!sameFile?squareName(f)[0]:!sameRank?squareName(f)[1]:squareName(f);}}
+  else if(capture)text=squareName(f)[0];
+  text+=(capture?'x':'')+squareName(t)+(promo?'='+promo.toUpperCase():'');
+ }
+ const n=applyMove(s,m),moves=legalMoves(n);return text+(inCheck(n)?(moves.length?'+':'#'):'');
+}
+function posKey(s){return s.b.join('')+':'+s.turn+':'+s.rights+':'+s.ep;}
+function insufficient(s){const pieces=[];for(let i=0;i<128;i++)if(on(i)&&s.b[i]!=='.'&&s.b[i].toLowerCase()!=='k')pieces.push([s.b[i].toLowerCase(),((i>>4)+(i&7))%2]);return pieces.length===0||(pieces.length===1&&['b','n'].includes(pieces[0][0]))||(pieces.every(x=>x[0]==='b')&&new Set(pieces.map(x=>x[1])).size===1);}
+function statusOf(s,positions){const moves=legalMoves(s),check=inCheck(s),rep=positions.filter(x=>x===posKey(s)).length;if(!moves.length)return{over:true,text:check?'Checkmate — '+(s.turn===1?'Black':'White')+' wins.':'Draw — stalemate.'};if(insufficient(s))return{over:true,text:'Draw — insufficient material.'};if(s.half>=100)return{over:true,text:'Draw — 50-move rule.'};if(rep>=3)return{over:true,text:'Draw — threefold repetition.'};return{over:false,text:(s.turn===1?'White':'Black')+' to move'+(check?' · Check':'')};}
+function evalWhite(s){
+ let score=0,nonPawn=0;
+ const bishops=[0,0],pawnFiles=[Array(8).fill(0),Array(8).fill(0)],pawnSquares=[[],[]];
+ for(let i=0;i<128;i++){
+  if(!on(i))continue;
+  const p=s.b[i];
+  if(p==='.')continue;
+  const k=p.toLowerCase(),c=sideOf(p),ci=c===1?0:1;
+  if(k!=='p'&&k!=='k')nonPawn+=MATERIAL[k];
+  if(k==='b')bishops[ci]++;
+  if(k==='p'){pawnFiles[ci][i&7]++;pawnSquares[ci].push(i);}
+ }
+ const phase=Math.min(1,nonPawn/6200);
+ for(let i=0;i<128;i++){
+  if(!on(i))continue;
+  const p=s.b[i];if(p==='.')continue;
+  const color=sideOf(p),ci=color===1?0:1,kind=p.toLowerCase(),row=i>>4,col=i&7;
+  const center=7-(Math.abs(3.5-row)+Math.abs(3.5-col));
+  const advance=color===1?6-row:row-1;
+  let v=MATERIAL[kind];
+  if(kind==='p'){
+   v+=advance*9;
+   if(col>=2&&col<=5)v+=5;
+  }else if(kind==='n'){
+   v+=center*11;
+   if(advance>0)v+=Math.min(advance,3)*2;
+  }else if(kind==='b'){
+   v+=center*7;
+  }else if(kind==='r'){
+   const own=pawnFiles[ci][col],enemy=pawnFiles[1-ci][col];
+   if(!own&&!enemy)v+=22;else if(!own)v+=11;
+   if(row===(color===1?1:6))v+=24;
+  }else if(kind==='q'){
+   v+=center*3;
+  }else if(kind==='k'){
+   v+=(-center*7*phase)+(center*12*(1-phase));
+   // A small pawn shield is valuable while queens and heavy pieces remain.
+   if(phase>.35){
+    let shield=0;
+    const front=row+(color===1?-1:1);
+    for(let f=Math.max(0,col-1);f<=Math.min(7,col+1);f++){
+     const sq=front*16+f;
+     if(on(sq)&&s.b[sq]===(color===1?'P':'p'))shield++;
+    }
+    v+=shield*11-(3-shield)*4;
+    let attackedRing=0;
+    for(const d of dirs.k){const t=i+d;if(on(t)&&attacked(s,t,-color))attackedRing++;}
+    v-=attackedRing*8*phase;
+   }
+  }
+  score+=color*v;
+ }
+ // Pawn structure: doubled and isolated pawns are weaknesses; passed pawns
+ // become increasingly dangerous as they approach promotion.
+ for(let ci=0;ci<2;ci++){
+  const color=ci===0?1:-1,own=ci===0?'P':'p',enemy=ci===0?'p':'P';
+  for(let file=0;file<8;file++){
+   const count=pawnFiles[ci][file];
+   if(count>1)score-=color*(count-1)*14;
+   if(!count)continue;
+   const isolated=(file===0||pawnFiles[ci][file-1]===0)&&(file===7||pawnFiles[ci][file+1]===0);
+   if(isolated)score-=color*11*count;
+   for(let i=0;i<128;i++){
+    if(!on(i)||s.b[i]!==own||(i&7)!==file)continue;
+    const row=i>>4,advance=color===1?6-row:row-1;
+    let passed=true;
+    for(const j of pawnSquares[1-ci]){
+     const er=j>>4,ef=j&7;
+     if(Math.abs(ef-file)<=1&&(color===1?er<row:er>row)){passed=false;break;}
+    }
+    if(passed)score+=color*(14+advance*advance*5);
+    // Reward a pawn defended by another pawn.
+    const supportRow=row+(color===1?1:-1);
+    let supported=false;
+    for(const df of [-1,1]){const f=file+df;if(f>=0&&f<8){const t=supportRow*16+f;if(on(t)&&s.b[t]===own)supported=true;}}
+    if(supported)score+=color*7;
+   }
+  }
+  if(bishops[ci]>=2)score+=color*30;
+ }
+ return score;
+}
+const INF=1e9,MATE=100000;
+function searchKey(s){return s.b.join('')+':'+s.turn+':'+s.rights+':'+s.ep+':'+Math.min(s.half,100);}
+function stopSearch(ctx){
+ if(ctx.stopped)return true;
+ if(ctx.nodes>=ctx.maxNodes||((ctx.nodes&1023)===0&&Date.now()>=ctx.deadline))ctx.stopped=true;
+ return ctx.stopped;
+}
+function hasNullMaterial(s){
+ let total=0;
+ for(let i=0;i<128;i++)if(on(i)&&sideOf(s.b[i])===s.turn){const k=s.b[i].toLowerCase();if(k!=='p'&&k!=='k')total+=MATERIAL[k]||0;}
+ return total>=500;
+}
+function moveOrder(s,m,ctx,ply,ttMove){
+ const [f,t,promo,flag]=m,key=moveKey(m);
+ if(ttMove&&key===ttMove)return 2000000;
+ const victim=flag==='ep'?100:s.b[t]==='.'?0:MATERIAL[s.b[t].toLowerCase()]||0;
+ const attacker=MATERIAL[s.b[f].toLowerCase()]||0;
+ if(victim)return 1000000+victim*16-attacker+(promo?MATERIAL[promo]:0);
+ if(promo)return 900000+MATERIAL[promo];
+ const killers=ctx.killers[ply]||[];
+ if(killers[0]===key)return 800000;
+ if(killers[1]===key)return 790000;
+ const idx=(s.turn===1?0:1)*16384+f*128+t;
+ return ctx.history[idx]||0;
+}
+function orderMoves(s,moves,ctx,ply,ttMove){return moves.sort((a,b)=>moveOrder(s,b,ctx,ply,ttMove)-moveOrder(s,a,ctx,ply,ttMove));}
+function rememberQuiet(s,m,depth,ply,ctx){
+ const key=moveKey(m),list=ctx.killers[ply]||(ctx.killers[ply]=[]);
+ if(list[0]!==key){list[1]=list[0];list[0]=key;}
+ const idx=(s.turn===1?0:1)*16384+m[0]*128+m[1];
+ ctx.history[idx]=Math.min(60000,(ctx.history[idx]||0)+depth*depth*12);
+}
+function qsearch(s,alpha,beta,ply,ctx,qdepth=0){
+ if(++ctx.nodes>=ctx.maxNodes){ctx.stopped=true;return evalWhite(s)*s.turn;}
+ if((ctx.nodes&1023)===0&&Date.now()>=ctx.deadline){ctx.stopped=true;return evalWhite(s)*s.turn;}
+ const check=inCheck(s),all=legalMoves(s);
+ if(!all.length)return check?-MATE+ply:0;
+ const stand=evalWhite(s)*s.turn;
+ if(!check){if(stand>=beta)return stand;if(stand>alpha)alpha=stand;}
+ if(qdepth>=12){
+  if(!check)return alpha;
+  let best=-INF;
+  for(const m of all){const n=applyMove(s,m);const value=-evalWhite(n)*n.turn;if(value>best)best=value;}
+  return Math.max(alpha,best);
+ }
+ const moves=orderMoves(s,check?all:all.filter(m=>s.b[m[1]]!=='.'||m[2]),ctx,ply,null);
+ for(const m of moves){
+  const score=-qsearch(applyMove(s,m),-beta,-alpha,ply+1,ctx,qdepth+1);
+  if(ctx.stopped)return 0;
+  if(score>=beta)return score;
+  if(score>alpha)alpha=score;
+ }
+ return alpha;
+}
+function negamax(s,depth,alpha,beta,ply,ctx,allowNull=true){
+ if(++ctx.nodes>=ctx.maxNodes){ctx.stopped=true;return evalWhite(s)*s.turn;}
+ if((ctx.nodes&1023)===0&&Date.now()>=ctx.deadline){ctx.stopped=true;return evalWhite(s)*s.turn;}
+ const check=inCheck(s);
+ if(s.half>=100&&!check)return 0;
+ if(check&&depth>0)depth++;
+ if(depth<=0)return qsearch(s,alpha,beta,ply,ctx);
+ const k=searchKey(s),entry=ctx.tt.get(k);let ttMove=entry?.move;
+ if(entry&&entry.depth>=depth){
+  if(entry.flag==='exact')return entry.score;
+  if(entry.flag==='lower')alpha=Math.max(alpha,entry.score);
+  if(entry.flag==='upper')beta=Math.min(beta,entry.score);
+  if(alpha>=beta)return entry.score;
+ }
+ const originalAlpha=alpha,originalBeta=beta;
+ // Null-move pruning quickly refutes positions where the side to move has
+ // no useful move; disable it in check and in low-material endings.
+ if(allowNull&&depth>=3&&!check&&beta<MATE-100&&hasNullMaterial(s)){
+  const nullState={...s,turn:-s.turn,ep:-1,half:s.half+1};
+  const reduction=depth>=6?3:2;
+  const nullScore=-negamax(nullState,depth-1-reduction,-beta,-beta+1,ply+1,ctx,false);
+  if(ctx.stopped)return 0;
+  if(nullScore>=beta)return nullScore;
+ }
+ const moves=orderMoves(s,legalMoves(s),ctx,ply,ttMove);
+ if(!moves.length)return check?-MATE+ply:0;
+ let best=-INF,bestMove=null;
+ for(let i=0;i<moves.length;i++){
+  const m=moves[i],quiet=s.b[m[1]]==='.'&&!m[2]&&m[3]!=='ep';
+  const next=applyMove(s,m);
+  let reduction=0;
+  if(i>=4&&depth>=3&&quiet&&!check&&!inCheck(next))reduction=(i>=10&&depth>=5)?2:1;
+  let score;
+  if(i===0){score=-negamax(next,depth-1,-beta,-alpha,ply+1,ctx,true);}
+  else{
+   score=-negamax(next,depth-1-reduction,-alpha-1,-alpha,ply+1,ctx,true);
+   if(!ctx.stopped&&score>alpha&&(reduction>0||score<beta))score=-negamax(next,depth-1,-beta,-alpha,ply+1,ctx,true);
+  }
+  if(ctx.stopped)return 0;
+  if(score>best){best=score;bestMove=moveKey(m);}
+  if(score>alpha)alpha=score;
+  if(alpha>=beta){if(quiet)rememberQuiet(s,m,depth,ply,ctx);break;}
+ }
+ const flag=best<=originalAlpha?'upper':best>=originalBeta?'lower':'exact';
+ if(ctx.tt.size>180000)ctx.tt.clear();
+ ctx.tt.set(k,{depth,score:best,flag,move:bestMove});
+ return best;
+}
+const SKILLS={
+ 1:{name:'Beginner',depth:1,nodes:5000,time:120,noise:420,desc:'A relaxed opponent. It makes occasional imperfect moves and is ideal for learning.'},
+ 2:{name:'Casual',depth:2,nodes:22000,time:260,noise:180,desc:'Looks for simple captures and short tactics, but still makes friendly mistakes.'},
+ 3:{name:'Club',depth:4,nodes:85000,time:520,noise:65,desc:'Plans several moves ahead and usually spots hanging pieces and basic tactics.'},
+ 4:{name:'Advanced',depth:5,nodes:230000,time:950,noise:18,desc:'Uses deeper search, tactical extensions, and stronger positional evaluation.'},
+ 5:{name:'Expert',depth:6,nodes:480000,time:1550,noise:3,desc:'A serious challenge with deeper calculation and very little randomness.'},
+ 6:{name:'Master',depth:8,nodes:2000000,time:5000,noise:0,desc:'The toughest setting: deeper calculation, tactical search, advanced pruning, and positional evaluation. It can think for up to five seconds.'}
+};
+function pickBotMove(s,level,onProgress){
+ const skill=SKILLS[level]||SKILLS[6],rootMoves=legalMoves(s);
+ if(!rootMoves.length)return null;
+ if(level===1&&Math.random()<.24)return rootMoves[Math.floor(Math.random()*rootMoves.length)];
+ const ctx={nodes:0,maxNodes:skill.nodes,deadline:Date.now()+skill.time,stopped:false,tt:new Map(),killers:Array.from({length:128},()=>[]),history:new Int32Array(2*128*128)};
+ let bestMove=rootMoves[0],completedScores=[],lastScore=0;
+ for(let depth=1;depth<=skill.depth;depth++){
+  ctx.stopped=false;
+  const ordered=orderMoves(s,rootMoves.slice(),ctx,0,moveKey(bestMove));
+  let alpha=-INF,iterationBest=null,iterationScore=-INF;const scores=[];
+  for(let i=0;i<ordered.length;i++){
+   const m=ordered[i],next=applyMove(s,m);let score;
+   if(i===0)score=-negamax(next,depth-1,-INF,-alpha,1,ctx,true);
+   else{
+    score=-negamax(next,depth-1,-alpha-1,-alpha,1,ctx,true);
+    if(!ctx.stopped&&score>alpha)score=-negamax(next,depth-1,-INF,-alpha,1,ctx,true);
+   }
+   if(ctx.stopped)break;
+   scores.push({move:m,score});
+   if(score>iterationScore){iterationScore=score;iterationBest=m;}
+   if(score>alpha)alpha=score;
+  }
+  if(ctx.stopped||scores.length!==ordered.length)break;
+  if(iterationBest){bestMove=iterationBest;lastScore=iterationScore;completedScores=scores;}
+  if(onProgress)onProgress({depth,nodes:ctx.nodes,maxDepth:skill.depth});
+  if(Math.abs(lastScore)>MATE-150)break;
+ }
+ if(skill.noise&&completedScores.length>1){
+  const adjusted=completedScores.map(x=>({move:x.move,score:x.score+(Math.random()-.5)*skill.noise}));
+  adjusted.sort((a,b)=>b.score-a.score);
+  const band=skill.noise*.45,candidates=adjusted.filter(x=>x.score>=adjusted[0].score-band);
+  if(candidates.length&&Math.random()<.72)bestMove=candidates[Math.floor(Math.random()*candidates.length)].move;
+ }
+ return bestMove;
+}
+function buildEngineWorker(){
+ const defs=[
+  `const dirs=${JSON.stringify(dirs)};`,`const MATERIAL=${JSON.stringify(MATERIAL)};`,`const INF=${INF},MATE=${MATE};`,`const SKILLS=${JSON.stringify(SKILLS)};`,
+  ...Object.entries({on,sideOf,attacked,inCheck,applyMove,pseudoMoves,legalMoves,moveKey,evalWhite,searchKey,stopSearch,hasNullMaterial,moveOrder,orderMoves,rememberQuiet,qsearch,negamax,pickBotMove}).map(([name,fn])=>`const ${name}=${fn.toString()};`)
+ ];
+ const tail=`self.onmessage=(event)=>{const {state,level,token}=event.data;try{const move=pickBotMove(state,level,progress=>self.postMessage({type:'progress',token,...progress}));self.postMessage({type:'move',token,move});}catch(error){self.postMessage({type:'error',token,message:String(error&&error.message||error)});}};`;
+ const blob=new Blob([defs.join('\n')+'\n'+tail],{type:'text/javascript'});
+ const url=URL.createObjectURL(blob);
+ const worker=new Worker(url);
+ return {worker,url};
+}
+let botWorker=null,botWorkerUrl=null,engineProgress='';
+function resetBotWorker(){
+ if(botWorker){botWorker.terminate();botWorker=null;}
+ if(botWorkerUrl){URL.revokeObjectURL(botWorkerUrl);botWorkerUrl=null;}
+ try{const created=buildEngineWorker();botWorker=created.worker;botWorkerUrl=created.url;}
+ catch(error){botWorker=null;botWorkerUrl=null;}
+}
+let state=startState(),humanSide=1,level=3,flipped=false,gameToken=0,selected=-1,validTargets=[],lastMove=null,moveHistory=[],positionHistory=[posKey(state)],turnSnapshots=[],thinking=false,gameOver=false,startedAt=Date.now(),elapsedOffset=0,timerHandle=null,pendingPromotion=null;
+let multiplayerRole=null,multiplayerConnected=false,peerClient=null,dataChannel=null,connectionPending=false;
+const $=id=>document.getElementById(id);
+function setConnectionState(message,kind=''){ $('connectionText').textContent=message; $('connectionState').className='connection-state'+(kind?' '+kind:''); }
+const boardEl=document.getElementById('board'),statusBox=document.getElementById('statusBox'),turnText=document.getElementById('turnText'),subTurn=document.getElementById('subTurn'),movesList=document.getElementById('movesList');
+const coords=()=>Array.from({length:64},(_,n)=>{const row=Math.floor(n/8),col=n%8;return flipped?(7-row)*16+(7-col):row*16+col;});
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800);}
+function render(){
+ const moves=legalMoves(state),status=statusOf(state,positionHistory);gameOver=status.over;
+ const checkedKing=state.b.indexOf(state.turn===1?'K':'k');boardEl.innerHTML='';
+ for(const i of coords()){
+  const row=i>>4,col=i&7,btn=document.createElement('button');btn.type='button';btn.className='square '+(((row+col)&1)?'dark':'light');btn.setAttribute('role','gridcell');btn.setAttribute('aria-label',squareName(i)+(state.b[i]==='.'?' empty':' '+state.b[i]));
+  if(lastMove&&(lastMove[0]===i||lastMove[1]===i))btn.classList.add('last');if(selected===i)btn.classList.add('selected');if(checkedKing===i&&inCheck(state))btn.classList.add('check');
+  if(col===0){const c=document.createElement('span');c.className='coord rank';c.textContent=8-row;btn.appendChild(c);}if(row===7){const c=document.createElement('span');c.className='coord file';c.textContent='abcdefgh'[col];btn.appendChild(c);}
+  const piece=state.b[i];if(piece!=='.'){const p=document.createElement('span');p.className='piece '+(sideOf(piece)===1?'white':'black');p.textContent=glyph[piece];btn.appendChild(p);}
+  if(validTargets.includes(i)){const marker=document.createElement('span');marker.className=state.b[i]==='.'?'dot':'capture-ring';btn.appendChild(marker);}
+  btn.addEventListener('click',()=>handleSquare(i));boardEl.appendChild(btn);
+ }
+ const online=!!multiplayerRole;
+ const label=status.over?status.text:thinking?'Computer is thinking…':state.turn===humanSide?'Your turn — '+status.text:(multiplayerConnected?"Opponent's turn — "+status.text:'Computer to move');
+ turnText.firstChild.textContent=label;subTurn.textContent=gameOver?'Game finished':online?'Online multiplayer · You are '+(humanSide===1?'White':'Black'):thinking?'Calculating a move':('Playing as '+(humanSide===1?'White':'Black'));
+ statusBox.textContent=thinking?(engineProgress||'The computer is choosing its move…'):multiplayerConnected?status.text+' · Connected to opponent':status.text;statusBox.className='status-msg'+(gameOver?' end':inCheck(state)?' warn':'');
+ document.getElementById('levelPill').textContent=online?(multiplayerConnected?'ONLINE · '+(humanSide===1?'WHITE':'BLACK'):'ONLINE · WAITING'):'Level '+level+' · '+SKILLS[level].name;
+ document.getElementById('moveCount').textContent=moveHistory.length;
+ document.getElementById('undoBtn').disabled=online||thinking||turnSnapshots.length===0;
+ document.getElementById('newGame').disabled=online&&multiplayerRole==='guest';
+ document.getElementById('newGame').textContent=online?(multiplayerRole==='host'?'↻ New online game':'Waiting for host'):'＋ New game';
+ document.getElementById('modeBadge').textContent=online?(multiplayerConnected?'● PEER-TO-PEER CONNECTED':'● MULTIPLAYER SETUP'):'● BOT MODE · OFFLINE';
+ document.getElementById('modeBadge').style.color=online?'#89e5c7':'';
+ renderMoves();renderCaptured();
+}
+function renderMoves(){if(!moveHistory.length){movesList.innerHTML='<div class="empty">Your moves will appear here.</div>';return;}movesList.innerHTML='';for(let j=0;j<moveHistory.length;j+=2){const row=document.createElement('div');row.className='move-row';const no=document.createElement('span');no.className='move-num';no.textContent=(Math.floor(j/2)+1)+'.';const w=document.createElement('span');w.className='move-san';w.textContent=moveHistory[j]?.san||'';const b=document.createElement('span');b.className='move-san';b.textContent=moveHistory[j+1]?.san||'';if(j+1>=moveHistory.length)w.classList.add('latest');else b.classList.add('latest');row.append(no,w,b);movesList.appendChild(row);}movesList.scrollTop=movesList.scrollHeight;}
+function renderCaptured(){const capW=[],capB=[];for(const m of moveHistory){if(m.captured){(m.color===humanSide?capW:capB).push(glyph[m.captured]);}}document.getElementById('capturedYou').textContent=capW.join(' ')||'—';document.getElementById('capturedBot').textContent=capB.join(' ')||'—';}
+function commitMove(m,isHuman,fromRemote=false){
+ const color=state.turn,piece=state.b[m[0]],captured=m[3]==='ep'?(color===1?'p':'P'):state.b[m[1]],notation=san(state,m),uci=squareName(m[0])+squareName(m[1])+(m[2]||''),next=applyMove(state,m);
+ moveHistory.push({san:notation,color,captured:captured!=='.'?captured:null,uci});state=next;lastMove=m;selected=-1;validTargets=[];positionHistory.push(posKey(state));pendingPromotion=null;document.getElementById('promotionModal').classList.remove('show');render();
+ const result=statusOf(state,positionHistory);if(result.over){showToast(result.text);render();}
+ if(multiplayerRole){
+  if(isHuman&&!fromRemote){if(!sendNetwork({type:'move',uci,position:posKey(state)})){showToast('Move made locally, but opponent is disconnected.');}}
+  return;
+ }
+ if(result.over)return;
+ if(!isHuman&&state.turn===humanSide)return;
+ if(state.turn!==humanSide)computerTurn();
+}
+function handleSquare(i){if(thinking||gameOver||state.turn!==humanSide||pendingPromotion)return;if(multiplayerRole&&!multiplayerConnected){showToast('Waiting for the other computer to connect.');return;}const piece=state.b[i];if(selected!==-1){const choices=legalMoves(state).filter(m=>m[0]===selected&&m[1]===i);if(choices.length){if(choices.length>1&&choices[0][2]){openPromotion(choices);return;}beforeHumanTurn();commitMove(choices[0],true);return;}}
+ if(sideOf(piece)===humanSide){selected=selected===i?-1:i;validTargets=selected===-1?[]:legalMoves(state).filter(m=>m[0]===selected).map(m=>m[1]);render();}else{selected=-1;validTargets=[];render();}}
+function beforeHumanTurn(){turnSnapshots.push({state:clone(state),moveHistory:moveHistory.slice(),positionHistory:positionHistory.slice(),lastMove:lastMove?lastMove.slice():null,elapsedOffset:elapsedOffset});if(turnSnapshots.length>100)turnSnapshots.shift();}
+function openPromotion(choices){pendingPromotion=choices;const holder=document.getElementById('promotionChoices');holder.innerHTML='';for(const m of choices){const b=document.createElement('button');b.textContent=glyph[state.turn===1?m[2].toUpperCase():m[2]];b.title=({q:'Queen',r:'Rook',b:'Bishop',n:'Knight'})[m[2]];b.addEventListener('click',()=>{beforeHumanTurn();commitMove(m,true);});holder.appendChild(b);}document.getElementById('promotionModal').classList.add('show');}
+function computerTurn(){
+ if(gameOver||state.turn===humanSide)return;
+ thinking=true;engineProgress='Starting engine search…';render();
+ const capturedState=clone(state),capturedKey=posKey(state),token=gameToken,searchLevel=level;
+ const finish=m=>{if(token!==gameToken||gameOver||posKey(state)!==capturedKey)return;thinking=false;engineProgress='';if(m)commitMove(m,false);else render();};
+ if(botWorker){
+  botWorker.onmessage=event=>{
+   const data=event.data;if(data.token!==token||token!==gameToken)return;
+   if(data.type==='progress'){
+    engineProgress='Computer thinking · depth '+data.depth+'/'+data.maxDepth+' · '+data.nodes.toLocaleString()+' nodes';
+    statusBox.textContent=engineProgress;
+   }else if(data.type==='move')finish(data.move);
+   else if(data.type==='error'){
+    showToast('Engine fallback activated');
+    setTimeout(()=>{try{finish(pickBotMove(capturedState,searchLevel));}catch(e){finish(legalMoves(state)[0]);}},0);
+   }
+  };
+  botWorker.onerror=()=>{
+   if(token!==gameToken)return;
+   botWorker.terminate();botWorker=null;
+   setTimeout(()=>{try{finish(pickBotMove(capturedState,searchLevel));}catch(e){finish(legalMoves(state)[0]);}},0);
+  };
+  botWorker.postMessage({state:capturedState,level:searchLevel,token});
+ }else{
+  setTimeout(()=>{if(token!==gameToken)return;let m;try{m=pickBotMove(capturedState,searchLevel);}catch(e){m=legalMoves(state)[0];}finish(m);},30);
+ }
+}
+function resetMatchState(){
+ gameToken++;engineProgress='';state=startState();selected=-1;validTargets=[];lastMove=null;moveHistory=[];positionHistory=[posKey(state)];turnSnapshots=[];thinking=false;gameOver=false;pendingPromotion=null;startedAt=Date.now();elapsedOffset=0;document.getElementById('promotionModal').classList.remove('show');
+ if(multiplayerRole){humanSide=multiplayerRole==='host'?1:-1;flipped=humanSide===-1;}
+ render();
+}
+function newGame(){
+ if(multiplayerRole){
+  if(multiplayerRole==='guest'){showToast('The host controls new online games.');return;}
+  resetMatchState();if(multiplayerConnected)sendNetwork({type:'newGame'});showToast('New online match started. You are White.');return;
+ }
+ gameToken++;const chosen=document.getElementById('sideSelect').value;humanSide=chosen==='0'?(Math.random()<.5?1:-1):Number(chosen);flipped=humanSide===-1;level=Number(document.getElementById('levelSelect').value);resetBotWorker();engineProgress='';state=startState();selected=-1;validTargets=[];lastMove=null;moveHistory=[];positionHistory=[posKey(state)];turnSnapshots=[];thinking=false;gameOver=false;pendingPromotion=null;startedAt=Date.now();elapsedOffset=0;document.getElementById('promotionModal').classList.remove('show');document.getElementById('difficultyInfo').textContent=SKILLS[level].desc;render();if(humanSide===-1){computerTurn();}
+}
+function undoTurn(){if(multiplayerRole){showToast('Undo is disabled in online matches so both boards stay synchronized.');return;}if(thinking||!turnSnapshots.length)return;const snap=turnSnapshots.pop();state=clone(snap.state);moveHistory=snap.moveHistory.slice();positionHistory=snap.positionHistory.slice();lastMove=snap.lastMove? snap.lastMove.slice():null;elapsedOffset=snap.elapsedOffset;selected=-1;validTargets=[];pendingPromotion=null;gameOver=false;document.getElementById('promotionModal').classList.remove('show');render();}
+function flipBoard(){flipped=!flipped;render();}
+// --- Six-digit room multiplayer via PeerJS signaling + direct WebRTC data channel ---
+const rtcConfig={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
+const PEERJS_URL='https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js';
+let peerLibraryPromise=null;
+function ensurePeerLibrary(){
+ if(window.Peer)return Promise.resolve();
+ if(peerLibraryPromise)return peerLibraryPromise;
+ peerLibraryPromise=new Promise((resolve,reject)=>{
+  const script=document.createElement('script');script.src=PEERJS_URL;script.async=true;script.crossOrigin='anonymous';
+  script.onload=()=>window.Peer?resolve():reject(new Error('PeerJS did not load. Refresh and try again.'));
+  script.onerror=()=>reject(new Error('Could not load the multiplayer connection library. Check your internet connection.'));
+  document.head.appendChild(script);
+ }).catch(error=>{peerLibraryPromise=null;throw error;});
+ return peerLibraryPromise;
+}
+function waitPeerOpen(peer,timeout=16000){
+ return new Promise((resolve,reject)=>{
+  let settled=false;
+  const finish=(fn,value)=>{if(settled)return;settled=true;clearTimeout(timer);peer.off('open',onOpen);peer.off('error',onError);fn(value);};
+  const onOpen=id=>finish(resolve,id);
+  const onError=error=>finish(reject,error);
+  const timer=setTimeout(()=>finish(reject,new Error('The room service took too long to respond. Try again.')),timeout);
+  peer.on('open',onOpen);peer.on('error',onError);
+ });
+}
+function randomRoomCode(){return String(100000+Math.floor(Math.random()*900000));}
+function setOnlineScreen(){
+ $('disconnectBtn').classList.remove('hidden');$('hostFlow').hidden=true;$('joinFlow').hidden=true;$('multiStartActions').classList.add('hidden');$('computerPanel').classList.add('hidden');
+ $('howToPlay').innerHTML='<b>Online match.</b> You are '+(humanSide===1?'White':'Black')+'. Select a piece, then a highlighted destination. Moves synchronize automatically. The host can start a rematch after the game ends.';render();
+}
+function setupDataChannel(channel){
+ if(dataChannel&&dataChannel!==channel){try{channel.close();}catch(e){}return;}
+ dataChannel=channel;connectionPending=true;
+ channel.on('open',()=>{
+  connectionPending=false;multiplayerConnected=true;$('connectRoomBtn').disabled=true;setConnectionState('Connected! You are playing as '+(humanSide===1?'White':'Black')+'.','connected');setOnlineScreen();
+  if(multiplayerRole==='host'){resetMatchState();sendNetwork({type:'newGame'});}
+ });
+ channel.on('data',message=>{
+  try{if(typeof message==='string')message=JSON.parse(message);handleNetworkMessage(message);}
+  catch(error){showToast('Received an invalid game message.');}
+ });
+ channel.on('close',()=>{
+  if(dataChannel===channel)dataChannel=null;connectionPending=false;multiplayerConnected=false;
+  if(multiplayerRole){setConnectionState('Opponent disconnected.','error');$('disconnectBtn').classList.remove('hidden');render();$('connectRoomBtn').disabled=false;}
+ });
+ channel.on('error',error=>{connectionPending=false;if(dataChannel===channel)dataChannel=null;setConnectionState('Connection error: '+(error&&error.message||'Please try again.'),'error');$('connectRoomBtn').disabled=false;});
+}
+function sendNetwork(message){if(!dataChannel||!dataChannel.open)return false;try{dataChannel.send(message);return true;}catch(e){return false;}}
+function handleNetworkMessage(msg){
+ if(!msg||typeof msg.type!=='string')return;
+ if(msg.type==='newGame'){
+  if(multiplayerRole==='guest'){resetMatchState();showToast('The host started a new match.');}
+  return;
+ }
+ if(msg.type==='move'){
+  if(!multiplayerConnected||state.turn===humanSide)return;
+  if(typeof msg.uci!=='string'||!/^([a-h][1-8]){2}[qrbn]?$/.test(msg.uci)){showToast('Opponent sent an invalid move.');return;}
+  const f=indexOf(msg.uci.slice(0,2)),t=indexOf(msg.uci.slice(2,4)),promo=msg.uci[4]||'';
+  const move=legalMoves(state).find(m=>m[0]===f&&m[1]===t&&(m[2]||'')===promo);
+  if(!move){setConnectionState('Move sync mismatch. Please disconnect and reconnect.','error');showToast('The received move did not match this position.');return;}
+  commitMove(move,false,true);
+  if(msg.position&&msg.position!==posKey(state)){setConnectionState('Board position mismatch. Reconnect before continuing.','error');}
+ }
+}
+async function closePeer(){
+ multiplayerConnected=false;connectionPending=false;
+ if(dataChannel){try{dataChannel.close();}catch(e){}dataChannel=null;}
+ if(peerClient){try{peerClient.destroy();}catch(e){}peerClient=null;}
+}
+async function startHostMode(){
+ await closePeer();resetBotWorker();multiplayerRole='host';humanSide=1;flipped=false;resetMatchState();
+ $('computerPanel').classList.add('hidden');$('multiStartActions').classList.add('hidden');$('hostFlow').hidden=false;$('joinFlow').hidden=true;
+ $('roomCodeOutput').value='';$('roomCodeBox').hidden=true;$('copyRoomCodeBtn').disabled=true;$('disconnectBtn').classList.remove('hidden');
+ setConnectionState('Host setup · Generate a 6-digit room code.','waiting');render();
+}
+async function startJoinMode(){
+ await closePeer();resetBotWorker();multiplayerRole='guest';humanSide=-1;flipped=true;resetMatchState();
+ $('computerPanel').classList.add('hidden');$('multiStartActions').classList.add('hidden');$('hostFlow').hidden=true;$('joinFlow').hidden=false;
+ $('roomCodeInput').value='';$('disconnectBtn').classList.remove('hidden');setConnectionState('Join setup · Enter the host room code.','waiting');render();
+}
+async function createRoom(){
+ const button=$('createRoomBtn');button.disabled=true;setConnectionState('Connecting to room service…','waiting');
+ try{
+  await ensurePeerLibrary();let opened=false,lastError=null;
+  for(let attempt=0;attempt<12&&!opened;attempt++){
+   const code=randomRoomCode();const candidate=new Peer(code,{secure:true,debug:0,config:rtcConfig});peerClient=candidate;
+   candidate.on('connection',connection=>{
+    if(multiplayerRole!=='host'||multiplayerConnected||connectionPending){connection.close();return;}
+    setupDataChannel(connection);setConnectionState('Opponent found · Establishing secure connection…','waiting');
+   });
+   candidate.on('error',error=>{
+    if(error&&error.type==='unavailable-id')return;
+    if(peerClient===candidate&&!multiplayerConnected)setConnectionState(error&&error.message||'Room service connection problem.','error');
+   });
+   try{
+    await waitPeerOpen(candidate);$('roomCodeOutput').value=code;$('roomCodeBox').hidden=false;$('copyRoomCodeBtn').disabled=false;
+    setConnectionState('Room '+code+' is ready · Waiting for your opponent.','waiting');opened=true;
+   }catch(error){lastError=error;try{candidate.destroy();}catch(e){}if(peerClient===candidate)peerClient=null;
+    if(error&&error.type==='unavailable-id')continue;
+    throw error;
+   }
+  }
+  if(!opened)throw lastError||new Error('Could not reserve a room code. Please try again.');
+ }catch(error){setConnectionState(error&&error.message||'Could not create a room.','error');showToast('Room creation failed.');if(peerClient){try{peerClient.destroy();}catch(e){}peerClient=null;}}
+ finally{button.disabled=!$('roomCodeBox').hidden;}
+}
+async function connectToRoom(){
+ const code=$('roomCodeInput').value.trim();if(!/^\d{6}$/.test(code)){showToast('Enter a valid 6-digit room code.');$('roomCodeInput').focus();return;}
+ const button=$('connectRoomBtn');button.disabled=true;setConnectionState('Connecting to room '+code+'…','waiting');
+ try{
+  await ensurePeerLibrary();peerClient=new Peer(undefined,{secure:true,debug:0,config:rtcConfig});
+  peerClient.on('error',error=>{if(peerClient&& !multiplayerConnected)setConnectionState(error&&error.message||'Connection problem. Check the room code.','error');});
+  await waitPeerOpen(peerClient);
+  const connection=peerClient.connect(code,{reliable:true,serialization:'json'});setupDataChannel(connection);
+  connection.on('error',error=>{button.disabled=false;setConnectionState(error&&error.message||'Could not connect. Check the room code and try again.','error');});
+  setConnectionState('Room found · Waiting for the host to accept the connection…','waiting');
+ }catch(error){button.disabled=false;setConnectionState(error&&error.message||'Could not join the room.','error');showToast('Could not connect to that room.');}
+}
+async function copyRoomCode(){const value=$('roomCodeOutput').value;if(!value)return;try{await navigator.clipboard.writeText(value);showToast('6-digit room code copied.');}catch(error){const input=$('roomCodeOutput');input.focus();input.select();try{document.execCommand('copy');showToast('6-digit room code copied.');}catch(e){showToast('Select and copy the room code.');}}}
+async function disconnectMultiplayer(){await closePeer();multiplayerRole=null;$('multiStartActions').classList.remove('hidden');$('hostFlow').hidden=true;$('joinFlow').hidden=true;$('disconnectBtn').classList.add('hidden');$('computerPanel').classList.remove('hidden');setConnectionState('Disconnected · You can play against the computer offline.');resetBotWorker();newGame();}
+$('hostRoomBtn').addEventListener('click',startHostMode);$('joinRoomBtn').addEventListener('click',startJoinMode);$('createRoomBtn').addEventListener('click',createRoom);$('connectRoomBtn').addEventListener('click',connectToRoom);$('copyRoomCodeBtn').addEventListener('click',copyRoomCode);$('roomCodeInput').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,6);});$('roomCodeInput').addEventListener('keydown',e=>{if(e.key==='Enter')connectToRoom();});$('cancelHostBtn').addEventListener('click',disconnectMultiplayer);$('cancelJoinBtn').addEventListener('click',disconnectMultiplayer);$('disconnectBtn').addEventListener('click',disconnectMultiplayer);
+window.addEventListener('beforeunload',()=>{try{dataChannel?.close();peerClient?.destroy();}catch(e){}});
+
+document.getElementById('newGame').addEventListener('click',newGame);document.getElementById('undoBtn').addEventListener('click',undoTurn);document.getElementById('flipBtn').addEventListener('click',flipBoard);
+document.getElementById('levelSelect').addEventListener('change',e=>{document.getElementById('difficultyInfo').textContent=SKILLS[Number(e.target.value)].desc;});
+function tick(){const secs=Math.floor((Date.now()-startedAt)/1000)+elapsedOffset;const mm=String(Math.floor(secs/60)).padStart(2,'0'),ss=String(secs%60).padStart(2,'0');document.getElementById('timer').textContent=mm+':'+ss;}
+setInterval(tick,1000);newGame();
+</script>
+</body>
+</html>

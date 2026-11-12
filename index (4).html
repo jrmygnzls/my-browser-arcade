@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#101827" />
+  <title>Endless Sudoku</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0c1220;
+      --panel: #151f31;
+      --panel-2: #1b2940;
+      --line: #35445d;
+      --line-strong: #71839f;
+      --text: #edf3ff;
+      --muted: #9aabc5;
+      --accent: #78a9ff;
+      --accent-2: #9bc0ff;
+      --good: #5dd6a0;
+      --bad: #ff7185;
+      --cell-size: min(9.5vw, 58px);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 28px 16px 42px;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 50% -20%, rgba(79, 125, 205, .22), transparent 42%),
+        var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button { font: inherit; }
+    .app { width: min(100%, 720px); margin: 0 auto; }
+    .topline { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:20px; }
+    .brand { display:flex; align-items:center; gap:11px; }
+    .brand-icon {
+      width:42px; height:42px; display:grid; place-items:center; border-radius:13px;
+      color:#0b1729; background:linear-gradient(145deg, #a8caff, #6497ec); font-size:21px; font-weight:900;
+      box-shadow:0 8px 24px rgba(80,135,220,.22);
+    }
+    h1 { margin:0; font-size:clamp(21px, 4vw, 27px); letter-spacing:-.8px; }
+    .subtitle { margin:3px 0 0; color:var(--muted); font-size:12px; }
+    .offline-tag { padding:7px 10px; border:1px solid rgba(93,214,160,.28); border-radius:999px; color:#8ce6bb; font-size:11px; white-space:nowrap; }
+    .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:16px; }
+    .stat { min-width:0; padding:13px 14px; border:1px solid rgba(126,151,187,.16); border-radius:14px; background:rgba(21,31,49,.88); }
+    .stat-label { display:block; color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:1px; }
+    .stat-value { display:block; margin-top:5px; font-size:19px; font-weight:750; font-variant-numeric:tabular-nums; }
+    .game-card { padding:clamp(12px,3vw,22px); border:1px solid rgba(126,151,187,.2); border-radius:22px; background:linear-gradient(160deg, rgba(24,36,57,.98), rgba(17,27,44,.98)); box-shadow:0 22px 70px rgba(0,0,0,.25); }
+    .game-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 1px 15px; }
+    .level-name { font-size:15px; font-weight:750; }
+    .difficulty { margin-top:4px; color:var(--muted); font-size:12px; }
+    .difficulty strong { color:var(--accent-2); font-weight:650; }
+    .progress-note { color:var(--muted); font-size:11px; text-align:right; }
+    .board-wrap { display:flex; justify-content:center; }
+    .board {
+      display:grid;
+      grid-template-columns:repeat(9, minmax(0,1fr));
+      width:min(100%, 522px);
+      aspect-ratio:1;
+      overflow:hidden;
+      border:2px solid var(--line-strong);
+      border-radius:9px;
+      background:#34435b;
+      gap:1px;
+      touch-action:manipulation;
+    }
+    .cell {
+      position:relative; display:grid; place-items:center; min-width:0; min-height:0; padding:0;
+      border:0; border-radius:0; color:#eaf2ff; background:#19273c; cursor:pointer;
+      font-size:clamp(17px, 4.5vw, 27px); font-weight:550; font-variant-numeric:tabular-nums;
+      transition:background .12s ease;
+    }
+    .cell.box-right { border-right:2px solid var(--line-strong); }
+    .cell.box-bottom { border-bottom:2px solid var(--line-strong); }
+    .cell.peer { background:#22334d; }
+    .cell.same-number { background:#2a4264; color:#c5dcff; }
+    /* Fixed clues stay visibly different from numbers entered by the player. */
+    .cell.given {
+      color:#ffe28a;
+      background:#59451d;
+      font-weight:900;
+      box-shadow:inset 0 0 0 2px rgba(255,218,112,.28);
+    }
+    .cell.user-entry {
+      color:#83e2c5;
+      background:#17413f;
+      font-weight:800;
+    }
+    .cell.selected { z-index:1; outline:2px solid var(--accent); outline-offset:-2px; background:#304c73; }
+    .cell.given.selected {
+      color:#fff0b8;
+      background:#6b5424;
+      outline-color:#ffd76a;
+      box-shadow:inset 0 0 0 2px rgba(255,218,112,.4);
+    }
+    .cell.conflict { color:#ff9cac; background:#4b2938; }
+    .board-legend {
+      display:flex; justify-content:center; align-items:center; flex-wrap:wrap; gap:16px;
+      margin:11px 0 0; color:var(--muted); font-size:11px;
+    }
+    .legend-item { display:inline-flex; align-items:center; gap:7px; }
+    .legend-swatch {
+      width:17px; height:17px; display:inline-grid; place-items:center; border-radius:4px;
+      font-size:11px; font-weight:850; line-height:1;
+    }
+    .legend-swatch.fixed { color:#ffe28a; background:#59451d; box-shadow:inset 0 0 0 2px rgba(255,218,112,.28); }
+    .legend-swatch.entered { color:#83e2c5; background:#17413f; }
+    .cell:focus-visible { z-index:2; outline:2px solid #fff; outline-offset:-3px; }
+    .notes-grid { position:absolute; inset:3px; display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr); color:#a9bdd9; font-size:clamp(7px,1.6vw,10px); font-weight:500; line-height:1; }
+    .notes-grid span { display:grid; place-items:center; }
+    .toolbar { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:16px; }
+    .tool-btn, .action-btn, .num-btn {
+      border:1px solid rgba(143,166,200,.2); color:var(--text); background:#202f47; border-radius:11px; cursor:pointer;
+      transition:transform .12s ease, border-color .12s ease, background .12s ease;
+    }
+    .tool-btn { min-height:42px; padding:8px 6px; font-size:12px; }
+    .tool-btn:hover, .action-btn:hover, .num-btn:hover { border-color:rgba(146,184,255,.65); background:#2b3f5e; }
+    .tool-btn:active, .action-btn:active, .num-btn:active { transform:scale(.98); }
+    .tool-btn.active { color:#cfe1ff; border-color:#6d9de8; background:#2c4569; }
+    .number-pad { display:grid; grid-template-columns:repeat(9,1fr); gap:7px; margin-top:11px; }
+    .num-btn { min-width:0; height:clamp(38px,7vw,49px); font-size:19px; font-weight:700; color:#cbdcff; }
+    .num-btn:disabled { opacity:.35; cursor:not-allowed; }
+    .action-row { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:13px; }
+    .action-btn { min-height:43px; padding:10px 12px; font-size:13px; font-weight:650; }
+    .action-btn.primary { color:#0e1a2c; border-color:transparent; background:linear-gradient(135deg,#a9cbff,#72a4f4); }
+    .action-btn.primary:hover { background:linear-gradient(135deg,#c2dcff,#8db7ff); }
+    .message { min-height:22px; margin:13px 2px 0; color:var(--muted); font-size:12px; text-align:center; }
+    .message.success { color:var(--good); font-weight:700; }
+    .message.error { color:#ff9cac; }
+    .help { margin:17px 4px 0; color:var(--muted); font-size:11px; line-height:1.65; text-align:center; }
+    .help kbd { display:inline-block; padding:1px 5px; border:1px solid #465875; border-radius:5px; color:#d7e5fb; background:#1b2a40; font:inherit; }
+    .modal-backdrop { position:fixed; inset:0; z-index:5; display:none; place-items:center; padding:20px; background:rgba(3,8,17,.76); backdrop-filter:blur(6px); }
+    .modal-backdrop.show { display:grid; }
+    .modal { width:min(100%,360px); padding:25px; border:1px solid #526783; border-radius:20px; background:#18263b; text-align:center; box-shadow:0 24px 80px rgba(0,0,0,.4); }
+    .trophy { font-size:42px; }
+    .modal h2 { margin:10px 0 6px; font-size:24px; }
+    .modal p { margin:0 0 19px; color:var(--muted); font-size:13px; line-height:1.5; }
+    .modal .action-btn { width:100%; }
+    @media (max-width:480px) {
+      body { padding:18px 10px 28px; }
+      .stats { gap:6px; }
+      .stat { padding:10px 8px; border-radius:11px; }
+      .stat-value { font-size:17px; }
+      .stat-label { font-size:9px; letter-spacing:.6px; }
+      .offline-tag { font-size:10px; padding:6px 8px; }
+      .toolbar { gap:6px; }
+      .tool-btn { font-size:11px; }
+      .number-pad { gap:4px; }
+      .num-btn { border-radius:8px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topline">
+      <div class="brand">
+        <div class="brand-icon">9</div>
+        <div><h1>Endless Sudoku</h1><p class="subtitle">A new puzzle every level.</p></div>
+      </div>
+      <div class="offline-tag">● PLAY OFFLINE</div>
+    </header>
+
+    <section class="stats" aria-label="Game statistics">
+      <div class="stat"><span class="stat-label">Level</span><span class="stat-value" id="levelStat">1</span></div>
+      <div class="stat"><span class="stat-label">Time</span><span class="stat-value" id="timeStat">00:00</span></div>
+      <div class="stat"><span class="stat-label">Mistakes</span><span class="stat-value" id="mistakesStat">0</span></div>
+      <div class="stat"><span class="stat-label">Hints</span><span class="stat-value" id="hintsStat">0</span></div>
+    </section>
+
+    <section class="game-card">
+      <div class="game-heading">
+        <div>
+          <div class="level-name" id="levelTitle">Level 1</div>
+          <div class="difficulty">Difficulty: <strong id="difficultyLabel">Easy</strong></div>
+        </div>
+        <div class="progress-note" id="progressNote">Fill every row, column<br>and 3 × 3 box.</div>
+      </div>
+
+      <div class="board-wrap"><div class="board" id="board" role="group" aria-label="Sudoku board"></div></div>
+      <div class="board-legend" aria-label="Number color legend">
+        <span class="legend-item"><span class="legend-swatch fixed">5</span> Fixed clues</span>
+        <span class="legend-item"><span class="legend-swatch entered">5</span> Your entries</span>
+      </div>
+
+      <div class="toolbar">
+        <button class="tool-btn" id="notesBtn" type="button" aria-pressed="false">✎ Notes</button>
+        <button class="tool-btn" id="eraseBtn" type="button">⌫ Erase</button>
+        <button class="tool-btn" id="hintBtn" type="button">✦ Hint</button>
+        <button class="tool-btn" id="checkBtn" type="button">✓ Check</button>
+      </div>
+
+      <div class="number-pad" id="numberPad" aria-label="Number pad"></div>
+
+      <div class="action-row">
+        <button class="action-btn" id="restartBtn" type="button">↻ Restart level</button>
+        <button class="action-btn primary" id="newPuzzleBtn" type="button">＋ New random puzzle</button>
+      </div>
+      <div class="message" id="message" aria-live="polite">Select an empty square, then enter a number.</div>
+    </section>
+
+    <p class="help">
+      Keyboard: <kbd>1–9</kbd> enter a number · <kbd>0</kbd> / <kbd>Delete</kbd> erase · <kbd>N</kbd> notes · arrow keys move.
+      Your current game is saved automatically in this browser.
+    </p>
+  </main>
+
+  <div class="modal-backdrop" id="winModal" role="dialog" aria-modal="true" aria-labelledby="winTitle">
+    <div class="modal">
+      <div class="trophy">🏆</div>
+      <h2 id="winTitle">Puzzle solved!</h2>
+      <p id="winText">Excellent work. Ready for another random puzzle?</p>
+      <button class="action-btn primary" id="nextLevelBtn" type="button">Play next level →</button>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const SAVE_KEY = 'endlessSudokuSave_v1';
+      const FULL_MASK = 0x1ff;
+      const $ = (id) => document.getElementById(id);
+
+      let level = 1;
+      let difficulty = 'Easy';
+      let puzzle = [];
+      let solution = [];
+      let values = [];
+      let notes = [];
+      let selected = 40;
+      let notesMode = false;
+      let mistakes = 0;
+      let hints = 0;
+      let elapsed = 0;
+      let timerId = null;
+      let completed = false;
+
+      const boardEl = $('board');
+      const messageEl = $('message');
+
+      function shuffle(array) {
+        const result = array.slice();
+        for (let i = result.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [result[i], result[j]] = [result[j], result[i]];
+        }
+        return result;
+      }
+
+      // Randomly permute a valid completed Sudoku grid.
+      function makeSolvedGrid() {
+        const bands = shuffle([0, 1, 2]);
+        const stacks = shuffle([0, 1, 2]);
+        const rows = bands.flatMap(band => shuffle([0, 1, 2]).map(row => band * 3 + row));
+        const cols = stacks.flatMap(stack => shuffle([0, 1, 2]).map(col => stack * 3 + col));
+        const digits = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        const pattern = (r, c) => (r * 3 + Math.floor(r / 3) + c) % 9;
+        const grid = Array(81).fill(0);
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) grid[r * 9 + c] = digits[pattern(rows[r], cols[c])];
+        }
+        return grid;
+      }
+
+      // Count solutions, stopping as soon as more than one is found.
+      // This keeps every generated puzzle uniquely solvable.
+      function countSolutions(source, limit = 2) {
+        const grid = source.slice();
+        const rowMask = Array(9).fill(0);
+        const colMask = Array(9).fill(0);
+        const boxMask = Array(9).fill(0);
+
+        for (let i = 0; i < 81; i++) {
+          const n = grid[i];
+          if (!n) continue;
+          const r = Math.floor(i / 9), c = i % 9, b = Math.floor(r / 3) * 3 + Math.floor(c / 3);
+          const bit = 1 << (n - 1);
+          if ((rowMask[r] & bit) || (colMask[c] & bit) || (boxMask[b] & bit)) return 0;
+          rowMask[r] |= bit; colMask[c] |= bit; boxMask[b] |= bit;
+        }
+
+        function search() {
+          let bestIndex = -1;
+          let bestMask = 0;
+          let bestCount = 10;
+
+          for (let i = 0; i < 81; i++) {
+            if (grid[i] !== 0) continue;
+            const r = Math.floor(i / 9), c = i % 9, b = Math.floor(r / 3) * 3 + Math.floor(c / 3);
+            const mask = FULL_MASK & ~(rowMask[r] | colMask[c] | boxMask[b]);
+            const count = bitCount(mask);
+            if (count === 0) return 0;
+            if (count < bestCount) {
+              bestCount = count; bestIndex = i; bestMask = mask;
+              if (count === 1) break;
+            }
+          }
+          if (bestIndex === -1) return 1;
+
+          const r = Math.floor(bestIndex / 9), c = bestIndex % 9, b = Math.floor(r / 3) * 3 + Math.floor(c / 3);
+          let total = 0;
+          let choices = bestMask;
+          while (choices) {
+            const bit = choices & -choices;
+            choices ^= bit;
+            const n = 32 - Math.clz32(bit);
+            grid[bestIndex] = n;
+            rowMask[r] |= bit; colMask[c] |= bit; boxMask[b] |= bit;
+            total += search();
+            grid[bestIndex] = 0;
+            rowMask[r] ^= bit; colMask[c] ^= bit; boxMask[b] ^= bit;
+            if (total >= limit) return total;
+          }
+          return total;
+        }
+        return search();
+      }
+
+      function bitCount(n) {
+        let count = 0;
+        while (n) { n &= n - 1; count++; }
+        return count;
+      }
+
+      function getDifficulty(levelNumber) {
+        if (levelNumber <= 10) return { name: 'Easy', min: 39, max: 43 };
+        if (levelNumber <= 25) return { name: 'Medium', min: 34, max: 38 };
+        if (levelNumber <= 50) return { name: 'Hard', min: 30, max: 33 };
+        return { name: 'Expert', min: 28, max: 31 };
+      }
+
+      function generatePuzzle(levelNumber) {
+        const tier = getDifficulty(levelNumber);
+        const target = tier.min + Math.floor(Math.random() * (tier.max - tier.min + 1));
+        const solved = makeSolvedGrid();
+        const board = solved.slice();
+        const positions = shuffle(Array.from({ length: 81 }, (_, i) => i));
+        let clues = 81;
+
+        for (const index of positions) {
+          if (clues <= target) break;
+          const old = board[index];
+          board[index] = 0;
+          if (countSolutions(board, 2) === 1) clues--;
+          else board[index] = old;
+        }
+
+        return { puzzle: board, solution: solved, difficulty: tier.name, clues };
+      }
+
+      function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const secs = (seconds % 60).toString().padStart(2, '0');
+        const hours = Math.floor(seconds / 3600);
+        return hours > 0 ? `${hours.toString().padStart(2, '0')}:${mins}:${secs}` : `${mins}:${secs}`;
+      }
+
+      function showMessage(text, type = '') {
+        messageEl.textContent = text;
+        messageEl.className = 'message' + (type ? ` ${type}` : '');
+      }
+
+      function updateStats() {
+        $('levelStat').textContent = level;
+        $('levelTitle').textContent = `Level ${level}`;
+        $('difficultyLabel').textContent = difficulty;
+        $('timeStat').textContent = formatTime(elapsed);
+        $('mistakesStat').textContent = mistakes;
+        $('hintsStat').textContent = hints;
+        $('progressNote').innerHTML = completed ? 'Puzzle completed<br>Great job!' : 'Fill every row, column<br>and 3 × 3 box.';
+      }
+
+      function getConflicts() {
+        const conflicts = new Set();
+        for (let i = 0; i < 81; i++) {
+          const n = values[i];
+          if (!n) continue;
+          const r = Math.floor(i / 9), c = i % 9;
+          for (let j = 0; j < 81; j++) {
+            if (j === i || values[j] !== n) continue;
+            const rr = Math.floor(j / 9), cc = j % 9;
+            const sameRow = rr === r;
+            const sameCol = cc === c;
+            const sameBox = Math.floor(rr / 3) === Math.floor(r / 3) && Math.floor(cc / 3) === Math.floor(c / 3);
+            if (sameRow || sameCol || sameBox) { conflicts.add(i); conflicts.add(j); }
+          }
+        }
+        return conflicts;
+      }
+
+      function renderBoard() {
+        boardEl.innerHTML = '';
+        const conflicts = getConflicts();
+        const selectedValue = selected >= 0 ? values[selected] : 0;
+        const sr = Math.floor(selected / 9), sc = selected % 9;
+
+        for (let i = 0; i < 81; i++) {
+          const r = Math.floor(i / 9), c = i % 9;
+          const cell = document.createElement('button');
+          cell.type = 'button';
+          cell.className = 'cell';
+          cell.setAttribute('aria-label', `Row ${r + 1}, column ${c + 1}, ${values[i] || 'empty'}${puzzle[i] ? ', fixed' : ''}`);
+          if (puzzle[i]) cell.classList.add('given');
+          else if (values[i]) cell.classList.add('user-entry');
+          if (c === 2 || c === 5) cell.classList.add('box-right');
+          if (r === 2 || r === 5) cell.classList.add('box-bottom');
+          if (i === selected) cell.classList.add('selected');
+          if (i !== selected && (r === sr || c === sc || (Math.floor(r / 3) === Math.floor(sr / 3) && Math.floor(c / 3) === Math.floor(sc / 3)))) cell.classList.add('peer');
+          if (selectedValue && values[i] === selectedValue) cell.classList.add('same-number');
+          if (conflicts.has(i)) cell.classList.add('conflict');
+
+          if (values[i]) {
+            cell.textContent = values[i];
+          } else if (notes[i] && notes[i].size) {
+            const noteGrid = document.createElement('span');
+            noteGrid.className = 'notes-grid';
+            for (let n = 1; n <= 9; n++) {
+              const note = document.createElement('span');
+              note.textContent = notes[i].has(n) ? n : '';
+              noteGrid.appendChild(note);
+            }
+            cell.appendChild(noteGrid);
+          }
+          cell.disabled = completed;
+          cell.addEventListener('click', () => {
+            selected = i;
+            renderBoard();
+            saveGame();
+          });
+          boardEl.appendChild(cell);
+        }
+        $('notesBtn').classList.toggle('active', notesMode);
+        $('notesBtn').setAttribute('aria-pressed', String(notesMode));
+        $('numberPad').querySelectorAll('button').forEach(btn => btn.disabled = completed);
+      }
+
+      function renderNumberPad() {
+        const pad = $('numberPad');
+        pad.innerHTML = '';
+        for (let n = 1; n <= 9; n++) {
+          const button = document.createElement('button');
+          button.type = 'button'; button.className = 'num-btn'; button.textContent = n;
+          button.addEventListener('click', () => enterNumber(n));
+          pad.appendChild(button);
+        }
+      }
+
+      function enterNumber(number) {
+        if (completed || selected < 0 || puzzle[selected] !== 0) return;
+        if (notesMode && values[selected] === 0) {
+          if (notes[selected].has(number)) notes[selected].delete(number);
+          else notes[selected].add(number);
+          renderBoard(); saveGame(); return;
+        }
+        if (values[selected] === number) return;
+        values[selected] = number;
+        notes[selected].clear();
+        if (number !== solution[selected]) {
+          mistakes++;
+          showMessage('That number is not correct. You can change it.', 'error');
+        } else {
+          showMessage('Good move!', '');
+        }
+        renderBoard(); updateStats(); saveGame(); checkWin();
+      }
+
+      function eraseSelected() {
+        if (completed || selected < 0 || puzzle[selected] !== 0) return;
+        values[selected] = 0;
+        notes[selected].clear();
+        renderBoard(); saveGame(); showMessage('Square cleared.');
+      }
+
+      function giveHint() {
+        if (completed || selected < 0 || puzzle[selected] !== 0) {
+          showMessage('Select an empty square to use a hint.'); return;
+        }
+        values[selected] = solution[selected];
+        notes[selected].clear();
+        hints++;
+        renderBoard(); updateStats(); saveGame();
+        showMessage('Hint added. Keep going!', 'success');
+        checkWin();
+      }
+
+      function checkBoard() {
+        if (completed) return;
+        const conflicts = getConflicts();
+        if (conflicts.size) {
+          showMessage('There are duplicate numbers in a row, column, or box.', 'error');
+          return;
+        }
+        const wrong = values.some((n, i) => n !== 0 && n !== solution[i]);
+        if (wrong) showMessage('Some numbers are incorrect. Check the highlighted squares.', 'error');
+        else if (values.every(Boolean)) checkWin();
+        else showMessage('So far, there are no conflicts. Keep going!', 'success');
+      }
+
+      function checkWin() {
+        if (values.every((n, i) => n === solution[i])) {
+          completed = true;
+          stopTimer();
+          updateStats(); renderBoard(); saveGame();
+          $('winText').textContent = `Level ${level} completed in ${formatTime(elapsed)} with ${mistakes} mistake${mistakes === 1 ? '' : 's'}. Your next random puzzle is ready.`;
+          $('winModal').classList.add('show');
+          $('nextLevelBtn').focus();
+        }
+      }
+
+      function startTimer() {
+        stopTimer();
+        timerId = window.setInterval(() => {
+          if (!completed) {
+            elapsed++;
+            $('timeStat').textContent = formatTime(elapsed);
+            saveGame();
+          }
+        }, 1000);
+      }
+
+      function stopTimer() {
+        if (timerId !== null) window.clearInterval(timerId);
+        timerId = null;
+      }
+
+      function saveGame() {
+        try {
+          localStorage.setItem(SAVE_KEY, JSON.stringify({
+            level, difficulty, puzzle, solution, values,
+            notes: notes.map(set => Array.from(set)), selected, notesMode,
+            mistakes, hints, elapsed, completed
+          }));
+        } catch (error) {
+          // The game remains playable if browser storage is unavailable or full.
+        }
+      }
+
+      function loadGame() {
+        try {
+          const raw = localStorage.getItem(SAVE_KEY);
+          if (!raw) return false;
+          const data = JSON.parse(raw);
+          if (!data || !Array.isArray(data.puzzle) || data.puzzle.length !== 81 || !Array.isArray(data.solution) || data.solution.length !== 81 || !Array.isArray(data.values) || data.values.length !== 81) return false;
+          level = Number.isInteger(data.level) && data.level > 0 ? data.level : 1;
+          difficulty = typeof data.difficulty === 'string' ? data.difficulty : getDifficulty(level).name;
+          puzzle = data.puzzle.map(n => Number.isInteger(n) && n >= 0 && n <= 9 ? n : 0);
+          solution = data.solution.map(n => Number.isInteger(n) && n >= 1 && n <= 9 ? n : 1);
+          values = data.values.map(n => Number.isInteger(n) && n >= 0 && n <= 9 ? n : 0);
+          notes = Array.isArray(data.notes) && data.notes.length === 81
+            ? data.notes.map(list => new Set(Array.isArray(list) ? list.filter(n => Number.isInteger(n) && n >= 1 && n <= 9) : []))
+            : Array.from({ length: 81 }, () => new Set());
+          selected = Number.isInteger(data.selected) && data.selected >= 0 && data.selected < 81 ? data.selected : 40;
+          notesMode = Boolean(data.notesMode);
+          mistakes = Math.max(0, Number(data.mistakes) || 0);
+          hints = Math.max(0, Number(data.hints) || 0);
+          elapsed = Math.max(0, Number(data.elapsed) || 0);
+          completed = Boolean(data.completed);
+          return true;
+        } catch (error) { return false; }
+      }
+
+      function startNewPuzzle(nextLevel = false) {
+        if (nextLevel) level++;
+        const generated = generatePuzzle(level);
+        puzzle = generated.puzzle;
+        solution = generated.solution;
+        difficulty = generated.difficulty;
+        values = puzzle.slice();
+        notes = Array.from({ length: 81 }, () => new Set());
+        selected = puzzle.findIndex(n => n === 0);
+        if (selected < 0) selected = 40;
+        notesMode = false;
+        mistakes = 0; hints = 0; elapsed = 0; completed = false;
+        $('winModal').classList.remove('show');
+        showMessage('Select an empty square, then enter a number.');
+        updateStats(); renderBoard(); saveGame(); startTimer();
+      }
+
+      function moveSelection(key) {
+        if (selected < 0) selected = 40;
+        let r = Math.floor(selected / 9), c = selected % 9;
+        if (key === 'ArrowUp') r = (r + 8) % 9;
+        if (key === 'ArrowDown') r = (r + 1) % 9;
+        if (key === 'ArrowLeft') c = (c + 8) % 9;
+        if (key === 'ArrowRight') c = (c + 1) % 9;
+        selected = r * 9 + c;
+        renderBoard(); saveGame();
+      }
+
+      $('notesBtn').addEventListener('click', () => {
+        if (completed) return;
+        notesMode = !notesMode;
+        $('notesBtn').classList.toggle('active', notesMode);
+        $('notesBtn').setAttribute('aria-pressed', String(notesMode));
+        showMessage(notesMode ? 'Notes mode is on. Enter numbers to add or remove notes.' : 'Notes mode is off.');
+        saveGame();
+      });
+      $('eraseBtn').addEventListener('click', eraseSelected);
+      $('hintBtn').addEventListener('click', giveHint);
+      $('checkBtn').addEventListener('click', checkBoard);
+      $('restartBtn').addEventListener('click', () => {
+        if (completed) { startNewPuzzle(false); return; }
+        values = puzzle.slice(); notes = Array.from({ length: 81 }, () => new Set());
+        selected = puzzle.findIndex(n => n === 0); mistakes = 0; hints = 0; elapsed = 0;
+        showMessage('Level restarted. Good luck!'); updateStats(); renderBoard(); saveGame(); startTimer();
+      });
+      $('newPuzzleBtn').addEventListener('click', () => startNewPuzzle(false));
+      $('nextLevelBtn').addEventListener('click', () => startNewPuzzle(true));
+
+      document.addEventListener('keydown', (event) => {
+        if ($('winModal').classList.contains('show')) {
+          if (event.key === 'Enter') startNewPuzzle(true);
+          return;
+        }
+        if (/^[1-9]$/.test(event.key)) { event.preventDefault(); enterNumber(Number(event.key)); return; }
+        if (event.key === '0' || event.key === 'Backspace' || event.key === 'Delete') { event.preventDefault(); eraseSelected(); return; }
+        if (event.key.toLowerCase() === 'n') { event.preventDefault(); $('notesBtn').click(); return; }
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) { event.preventDefault(); moveSelection(event.key); }
+      });
+
+      renderNumberPad();
+      if (loadGame()) {
+        updateStats(); renderBoard();
+        if (completed) {
+          showMessage('This level is complete. Start the next level!', 'success');
+          $('winText').textContent = `Level ${level} is already complete. Continue to the next random puzzle?`;
+          $('winModal').classList.add('show');
+        } else {
+          showMessage('Welcome back! Your previous game has been restored.');
+          startTimer();
+        }
+      } else {
+        startNewPuzzle(false);
+      }
+    })();
+  </script>
+</body>
+</html>
