@@ -61,7 +61,8 @@ window.ARCADE_GAMES = [
     "icon": "⌨",
     "theme": "nightfall",
     "tags": [
-      "Skill / Typing"
+      "Skill",
+      "Typing"
     ]
   }
 ];
