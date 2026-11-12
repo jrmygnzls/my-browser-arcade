@@ -11,7 +11,7 @@ A collection of standalone browser games published with GitHub Pages.
 
 ## Publish the site
 
-1. Download and extract [My Browser Arcade GitHub Pages ZIP](https://github.com/jrmygnzls/my-browser-arcade).
+1. Download and extract [My Browser Arcade GitHub Pages ZIP](https://github.com/jrmygnzls/my-browser-arcade/blob/main/My_Browser_Arcade_Package_Fresh.zip).
 2. Open this repository on GitHub and choose **Add file → Upload files**.
 3. Open the extracted `My_Browser_Arcade` folder on your computer and upload its contents (not the outer folder and not only the ZIP).
 4. Commit the upload to the `main` branch.
