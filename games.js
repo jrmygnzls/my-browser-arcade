@@ -55,8 +55,8 @@ window.ARCADE_GAMES = [
   {
     "id": "keysprint",
     "title": "KeySprint: Typing Challenge",
-    "genre": "Typingtest",
-    "description": "Practice your typing skills",
+    "genre": "Typing Test",
+    "description": "Timed and word-count typing challenges with live WPM, accuracy, and locally saved personal bests.",
     "href": "./games/keysprint/index.html",
     "icon": "⌨",
     "theme": "nightfall",
