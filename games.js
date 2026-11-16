@@ -65,4 +65,18 @@ window.ARCADE_GAMES = [
       "Typing"
     ]
   }
+  ,{
+    "id": "pocket-kings",
+    "title": "Pocket Kings: 8-Ball Pool",
+    "genre": "Sports / Billiards",
+    "description": "Play classic 8-ball pool against the CPU, challenge a friend locally, or create an online room using a six-digit code.",
+    "href": "./games/pocket-kings/index.html",
+    "icon": "🎱",
+    "theme": "chess",
+    "tags": [
+      "Offline",
+      "Online multiplayer",
+      "8-Ball"
+    ]
+  }
 ];
